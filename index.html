@@ -28,6 +28,18 @@
       var h = (location.hash + location.search).toLowerCase();
       return h.indexOf('edit') > -1 || h.indexOf('admin') > -1;
     }
+    // Auto-wire the content feed BEFORE the app boots:
+    //  - display screens (the TV, plain URL) get the shared Gist feed URL, so they pull updates with no setup
+    //  - edit screens (#edit / #admin) have the feed cleared, so polling never overwrites live edits
+    try {
+      var FEED_KEY = 'messboard.feed';
+      var FEED_URL = 'https://gist.githubusercontent.com/ittygittybumblebee/1149c8061f12f6ee587174e906c1b71e/raw/mess-board-feed.json';
+      if (isEdit()) {
+        localStorage.removeItem(FEED_KEY);
+      } else {
+        localStorage.setItem(FEED_KEY, JSON.stringify({ url: FEED_URL }));
+      }
+    } catch (e) {}
     function findStage() {
       var d = document.getElementsByTagName('div');
       for (var i = 0; i < d.length; i++) {
@@ -42,6 +54,9 @@
       if (!stage) return;
       if (isEdit()) {
         stage.style.transform = '';
+        stage.style.position = '';
+        stage.style.left = '';
+        stage.style.top = '';
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
         return;
@@ -49,8 +64,13 @@
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
       var s = Math.min(window.innerWidth / W, window.innerHeight / H);
-      stage.style.transform = 'scale(' + s + ')';
-      stage.style.transformOrigin = 'center center';
+      var tx = (window.innerWidth - W * s) / 2;
+      var ty = (window.innerHeight - H * s) / 2;
+      stage.style.position = 'fixed';
+      stage.style.left = '0';
+      stage.style.top = '0';
+      stage.style.transformOrigin = 'top left';
+      stage.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + s + ')';
     }
     if (window.addEventListener) {
       window.addEventListener('resize', fit, false);
