@@ -17,6 +17,49 @@
       This page requires JavaScript to display.
     </div>
   </noscript>
+  <!-- mb-autofit: scale the fixed 1920x1080 board to fit any screen (added for TV display). Skips edit mode. -->
+  <style id="mb-autofit-style">
+    html, body { width: 100%; height: 100%; }
+  </style>
+  <script id="mb-autofit">
+  (function () {
+    var W = 1920, H = 1080;
+    function isEdit() {
+      var h = (location.hash + location.search).toLowerCase();
+      return h.indexOf('edit') > -1 || h.indexOf('admin') > -1;
+    }
+    function findStage() {
+      var d = document.getElementsByTagName('div');
+      for (var i = 0; i < d.length; i++) {
+        var s = d[i].getAttribute('style') || '';
+        if (s.indexOf('width:1920px') > -1 && s.indexOf('height:1080px') > -1) return d[i];
+      }
+      return null;
+    }
+    function fit() {
+      if (!document.body) return;
+      var stage = findStage();
+      if (!stage) return;
+      if (isEdit()) {
+        stage.style.transform = '';
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        return;
+      }
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      var s = Math.min(window.innerWidth / W, window.innerHeight / H);
+      stage.style.transform = 'scale(' + s + ')';
+      stage.style.transformOrigin = 'center center';
+    }
+    if (window.addEventListener) {
+      window.addEventListener('resize', fit, false);
+      window.addEventListener('load', fit, false);
+      window.addEventListener('orientationchange', fit, false);
+    }
+    setInterval(fit, 500);
+  })();
+  </script>
 </head>
 <body>
   <div id="__bundler_thumbnail">
