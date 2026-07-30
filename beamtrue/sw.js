@@ -1,6 +1,6 @@
 /* BeamTrue service worker — offline-first.
    Bump CACHE on every release so installed copies update. */
-const CACHE = 'beamtrue-v1.0.0-mb';
+const CACHE = 'beamtrue-v1.1.0-mb';
 const ASSETS = [
   './',
   './index.html',
