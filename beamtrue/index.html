@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b0e14">
+<meta name="theme-color" content="#0a0a0c">
 <meta name="description" content="BeamTrue — guided CO2 laser mirror alignment. Tell it where the burn mark landed; it tells you exactly which screw to turn.">
 <title>BeamTrue — Laser Mirror Alignment</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -17,12 +17,14 @@
    1. Design tokens & base   2. Layout & components
    3. Target input           4. Diagrams
    ============================================================ */
+/* Palette (Jeremy, 2026-07-30): Laser Orange #ff4d00 = the one accent
+   (buttons, headings, the mark) · Ink Black #0a0a0c · Bone #e8e6e3 */
 :root{
-  --bg:#000; --bg2:#0a0a0b; --card:#0c0c0e; --card2:#131316;
-  --line:rgba(255,255,255,.16); --line2:rgba(255,255,255,.08);
-  --text:#f5f5f7; --dim:#a1a1a6; --faint:#6e6e73;
-  --laser:#ff3b30; --laser2:#ff6961; --ok:#30d158; --warn:#ffd60a;
-  --near:#f5f5f7; --accent:#ff3b30;
+  --bg:#0a0a0c; --bg2:#121215; --card:#111114; --card2:#1a1a1e;
+  --line:rgba(232,230,227,.16); --line2:rgba(232,230,227,.08);
+  --text:#e8e6e3; --dim:#a5a19c; --faint:#6f6b66;
+  --laser:#ff4d00; --laser2:#ff7033; --ok:#30d158; --warn:#ffd60a;
+  --near:#e8e6e3; --accent:#ff4d00;
   --r:3px; --shadow:none;
   --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
 }
@@ -46,7 +48,7 @@ input,select{font:inherit;color:var(--text);background:var(--bg);border:1px soli
 input:focus,select:focus{outline:1.5px solid var(--laser);outline-offset:-1px}
 h1{font-size:1.4rem;letter-spacing:-.02em;font-weight:700}
 h2{font-size:1.1rem;letter-spacing:-.01em;font-weight:650}
-h3{font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+h3{font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--laser)}
 .small{font-size:.84rem;color:var(--dim);line-height:1.5}
 .tiny{font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.07em}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
@@ -57,7 +59,7 @@ h3{font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 18px;border-radius:var(--r);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;transition:opacity .12s ease;user-select:none}
 .btn:active{opacity:.7}
 .btn-primary{background:var(--laser);color:#fff}
-.btn-primary:hover{background:#e0261b}
+.btn-primary:hover{background:#e64500}
 .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
 .btn-ghost:hover{border-color:var(--dim)}
 .btn-ok{background:var(--ok);color:#000}
@@ -159,7 +161,7 @@ label.fld{display:block;margin-top:12px;font-size:.68rem;color:var(--faint);text
 label.fld input,label.fld select{margin-top:6px}
 .shotchip{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:2px;background:transparent}
 .chip-near{color:var(--near);border:1px solid var(--line)}
-.chip-far{color:var(--laser);border:1px solid rgba(255,59,48,.55)}
+.chip-far{color:var(--laser);border:1px solid rgba(255,77,0,.55)}
 details.help{margin-top:10px;border-top:1px solid var(--line2)}
 details.help summary{padding:12px 2px;cursor:pointer;font-size:.68rem;font-weight:600;color:var(--faint);list-style:none;text-transform:uppercase;letter-spacing:.1em}
 details.help summary::after{content:" +";color:var(--faint)}
@@ -179,7 +181,7 @@ details.help .body{padding:0 2px 12px;font-size:.84rem;color:var(--dim);line-hei
   <!-- ============ HOME ============ -->
   <section class="screen" id="screen-home">
     <div class="apphead">
-      <svg class="logo" viewBox="0 0 64 64"><rect x="1" y="1" width="62" height="62" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/><line x1="10" y1="30" x2="42" y2="30" stroke="#ff3b30" stroke-width="3"/><line x1="42" y1="30" x2="42" y2="50" stroke="#ff3b30" stroke-width="3"/><line x1="34" y1="22" x2="50" y2="38" stroke="currentColor" stroke-width="2.5"/><circle cx="42" cy="52" r="4.5" fill="#ff3b30"/></svg>
+      <svg class="logo" viewBox="0 0 64 64"><rect x="1" y="1" width="62" height="62" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/><line x1="10" y1="30" x2="42" y2="30" stroke="#ff4d00" stroke-width="3"/><line x1="42" y1="30" x2="42" y2="50" stroke="#ff4d00" stroke-width="3"/><line x1="34" y1="22" x2="50" y2="38" stroke="currentColor" stroke-width="2.5"/><circle cx="42" cy="52" r="4.5" fill="#ff4d00"/></svg>
       <div class="title">
         <h1>BeamTrue</h1>
         <div class="tiny">Laser mirror alignment, without the guesswork</div>
@@ -334,7 +336,7 @@ details.help .body{padding:0 2px 12px;font-size:.84rem;color:var(--dim);line-hei
    3. Adjustment engine             6. Home / settings / license
    ============================================================ */
 'use strict';
-const VERSION = '1.1.0';
+const VERSION = '1.1.1';
 const LS_KEY  = 'beamtrue.v1';
 
 /* ---------- 1. CONFIG ---------- */
@@ -577,7 +579,7 @@ function machineSVG(stId){
   const m2x = left? ox-10 : ox+bw+10;
   const hx  = ox+bw*0.55;                                  // head X
   const seg=(x1,y1,x2,y2,on)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${on?'beam':'beamfaint'}"/>`;
-  const mirror=(x,y,label,hot)=>`<g><rect x="${x-7}" y="${y-7}" width="14" height="14" fill="${hot?'rgba(255,59,48,.12)':'none'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.2"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="9" fill="${hot?'var(--laser)':'var(--dim)'}" font-weight="700">${label}</text></g>`;
+  const mirror=(x,y,label,hot)=>`<g><rect x="${x-7}" y="${y-7}" width="14" height="14" fill="${hot?'rgba(255,77,0,.12)':'none'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.2"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="9" fill="${hot?'var(--laser)':'var(--dim)'}" font-weight="700">${label}</text></g>`;
   const hot = { tube:['t','1'], m1m2:['1','2'], m2m3:['2','3'], m3noz:['3','h'], verify:['h'] }[stId]||[];
   const H_ = k => hot.includes(k);
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
@@ -586,7 +588,7 @@ function machineSVG(stId){
   s += `<text x="${ox+bw-4}" y="${oy-22}" text-anchor="end" font-size="8" letter-spacing="1.2" fill="var(--faint)">REAR</text>`;
   // tube along the rear
   const tx1 = left? ox+bw*0.15 : ox+bw*0.05, tx2 = left? ox+bw*0.95 : ox+bw*0.85;
-  s += `<rect x="${Math.min(tx1,tx2)}" y="${tubeY-5}" width="${Math.abs(tx2-tx1)}" height="10" rx="5" fill="${H_('t')?'rgba(255,59,48,.12)':'none'}" stroke="${H_('t')?'var(--laser)':'var(--faint)'}"/>`;
+  s += `<rect x="${Math.min(tx1,tx2)}" y="${tubeY-5}" width="${Math.abs(tx2-tx1)}" height="10" rx="5" fill="${H_('t')?'rgba(255,77,0,.12)':'none'}" stroke="${H_('t')?'var(--laser)':'var(--faint)'}"/>`;
   s += `<text x="${(tx1+tx2)/2}" y="${tubeY-9}" text-anchor="middle" font-size="7.5" letter-spacing="1" fill="var(--dim)">LASER TUBE</text>`;
   // beam legs
   s += seg(left?tx1:tx2, tubeY, m1x, m1y, stId==='tube');                 // tube → m1
@@ -596,7 +598,7 @@ function machineSVG(stId){
   s += `<line x1="${ox}" y1="${gy}" x2="${ox+bw}" y2="${gy}" stroke="var(--line)" stroke-width="3"/>`;
   s += mirror(m1x, m1y, '1', H_('1'));
   s += mirror(m2x, gy, '2', H_('2'));
-  s += `<g><circle cx="${hx}" cy="${gy}" r="9" fill="${H_('3')||H_('h')?'rgba(255,59,48,.12)':'none'}" stroke="${H_('3')||H_('h')?'var(--laser)':'var(--faint)'}" stroke-width="1.2"/><text x="${hx}" y="${gy+3.5}" text-anchor="middle" font-size="8.5" fill="${H_('3')||H_('h')?'var(--laser)':'var(--dim)'}" font-weight="700">${stId==='m3noz'||stId==='verify'?'▼':'3'}</text></g>`;
+  s += `<g><circle cx="${hx}" cy="${gy}" r="9" fill="${H_('3')||H_('h')?'rgba(255,77,0,.12)':'none'}" stroke="${H_('3')||H_('h')?'var(--laser)':'var(--faint)'}" stroke-width="1.2"/><text x="${hx}" y="${gy+3.5}" text-anchor="middle" font-size="8.5" fill="${H_('3')||H_('h')?'var(--laser)':'var(--dim)'}" font-weight="700">${stId==='m3noz'||stId==='verify'?'▼':'3'}</text></g>`;
   // movement hints
   if(stId==='m1m2'){
     s += `<g><path d="M ${m2x+(left?18:-18)} ${oy+14} v ${bh-28}" stroke="var(--near)" stroke-width="1.5" marker-end="url(#ah)" fill="none"/><text x="${m2x+(left?24:-24)}" y="${oy+bh/2}" font-size="8" fill="var(--near)" ${left?'':'text-anchor="end"'}>gantry: rear ⇄ front</text></g>`;
@@ -629,7 +631,7 @@ function mountSVG(plan, prof){
   for(const [pos,[x,y]] of Object.entries(P)){
     const dir = active[pos];
     const hot = !!dir;
-    s += `<circle cx="${x}" cy="${y}" r="13" fill="${hot?'rgba(255,59,48,.12)':'none'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="${hot?2:1.2}"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="13" fill="${hot?'rgba(255,77,0,.12)':'none'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="${hot?2:1.2}"/>`;
     s += `<line x1="${x-6}" y1="${y}" x2="${x+6}" y2="${y}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.6"/>`;
     s += `<line x1="${x}" y1="${y-6}" x2="${x}" y2="${y+6}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.6"/>`;
     if(hot){
@@ -654,7 +656,7 @@ function tubeSVG(axis, moveSign){
   s+=`<line x1="10" y1="102" x2="290" y2="102" stroke="var(--line)" stroke-width="1.5"/>`;
   s+=`<rect x="40" y="52" width="200" height="26" rx="13" fill="none" stroke="var(--dim)"/>`;
   s+=`<text x="140" y="45" text-anchor="middle" font-size="7.5" letter-spacing="1" fill="var(--dim)">LASER TUBE — OUTPUT END → MIRROR 1</text>`;
-  s+=`<rect x="58" y="78" width="14" height="22" fill="none" stroke="var(--faint)"/><rect x="208" y="78" width="14" height="22" fill="rgba(255,59,48,.12)" stroke="var(--laser)"/>`;
+  s+=`<rect x="58" y="78" width="14" height="22" fill="none" stroke="var(--faint)"/><rect x="208" y="78" width="14" height="22" fill="rgba(255,77,0,.12)" stroke="var(--laser)"/>`;
   s+=`<text x="65" y="118" text-anchor="middle" font-size="7.5" letter-spacing=".8" fill="var(--faint)">REAR MOUNT</text>`;
   s+=`<text x="215" y="118" text-anchor="middle" font-size="7.5" letter-spacing=".8" fill="var(--laser)">OUTPUT MOUNT — ADJUST</text>`;
   s+=`<line x1="240" y1="65" x2="292" y2="65" class="beam"/>`;
