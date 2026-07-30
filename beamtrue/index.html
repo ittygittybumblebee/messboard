@@ -18,148 +18,158 @@
    3. Target input           4. Diagrams
    ============================================================ */
 :root{
-  --bg:#0b0e14; --bg2:#111624; --card:#151b2c; --card2:#1b2338;
-  --line:#26304a; --text:#e8ecf6; --dim:#93a0bd; --faint:#5b6785;
-  --laser:#ff3b30; --laser2:#ff6b5e; --ok:#34d399; --warn:#fbbf24;
-  --near:#38bdf8; --accent:#ff3b30;
-  --r:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  --bg:#000; --bg2:#0a0a0b; --card:#0c0c0e; --card2:#131316;
+  --line:rgba(255,255,255,.16); --line2:rgba(255,255,255,.08);
+  --text:#f5f5f7; --dim:#a1a1a6; --faint:#6e6e73;
+  --laser:#ff3b30; --laser2:#ff6961; --ok:#30d158; --warn:#ffd60a;
+  --near:#f5f5f7; --accent:#ff3b30;
+  --r:3px; --shadow:none;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
 }
 [data-theme="light"]{
-  --bg:#f2f4f9; --bg2:#e8ebf3; --card:#ffffff; --card2:#f4f6fb;
-  --line:#d7dce8; --text:#141a28; --dim:#4c5872; --faint:#8b95ab;
-  --shadow:0 10px 30px rgba(20,30,60,.12);
+  --bg:#fff; --bg2:#f5f5f7; --card:#fff; --card2:#f5f5f7;
+  --line:rgba(0,0,0,.22); --line2:rgba(0,0,0,.09);
+  --text:#1d1d1f; --dim:#515154; --faint:#86868b;
+  --ok:#248a3d; --near:#1d1d1f;
+  --shadow:none;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{font-size:16px}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
   background:var(--bg); color:var(--text); min-height:100dvh;
-  background-image:radial-gradient(1200px 600px at 70% -10%, rgba(255,59,48,.07), transparent 60%);
+  -webkit-font-smoothing:antialiased;
 }
 #app{max-width:680px;margin:0 auto;padding:16px 16px calc(24px + env(safe-area-inset-bottom));min-height:100dvh;display:flex;flex-direction:column}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
-input,select{font:inherit;color:var(--text);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
-input:focus,select:focus{outline:2px solid var(--laser);outline-offset:1px;border-color:transparent}
-h1{font-size:1.5rem;letter-spacing:-.02em}
-h2{font-size:1.15rem;letter-spacing:-.01em}
-h3{font-size:1rem}
-.small{font-size:.82rem;color:var(--dim)}
-.tiny{font-size:.72rem;color:var(--faint)}
-.mono{font-variant-numeric:tabular-nums}
+input,select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;width:100%}
+input:focus,select:focus{outline:1.5px solid var(--laser);outline-offset:-1px}
+h1{font-size:1.4rem;letter-spacing:-.02em;font-weight:700}
+h2{font-size:1.1rem;letter-spacing:-.01em;font-weight:650}
+h3{font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+.small{font-size:.84rem;color:var(--dim);line-height:1.5}
+.tiny{font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.07em}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
 /* ---- components ---- */
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
-.card + .card{margin-top:12px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 18px;border-radius:14px;font-weight:650;font-size:1rem;transition:transform .06s ease, filter .15s;user-select:none}
-.btn:active{transform:scale(.98)}
-.btn-primary{background:linear-gradient(135deg,var(--laser),#e0261b);color:#fff;box-shadow:0 6px 20px rgba(255,59,48,.35)}
-.btn-primary:hover{filter:brightness(1.08)}
-.btn-ghost{background:var(--card2);border:1px solid var(--line);color:var(--text)}
-.btn-ghost:hover{filter:brightness(1.1)}
-.btn-ok{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
-.btn-sm{width:auto;padding:8px 14px;font-size:.86rem;border-radius:10px}
-.btn[disabled]{opacity:.45;pointer-events:none}
+.card{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:18px 16px}
+.card + .card{margin-top:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 18px;border-radius:var(--r);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;transition:opacity .12s ease;user-select:none}
+.btn:active{opacity:.7}
+.btn-primary{background:var(--laser);color:#fff}
+.btn-primary:hover{background:#e0261b}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--dim)}
+.btn-ok{background:var(--ok);color:#000}
+.btn-sm{width:auto;padding:8px 14px;font-size:.7rem}
+.btn[disabled]{opacity:.35;pointer-events:none}
 .row{display:flex;gap:10px;align-items:center}
 .row>.btn{flex:1}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
-.badge-demo{background:rgba(251,191,36,.15);color:var(--warn);border:1px solid rgba(251,191,36,.35)}
-.badge-pro{background:rgba(52,211,153,.15);color:var(--ok);border:1px solid rgba(52,211,153,.35)}
-.divider{height:1px;background:var(--line);margin:14px 0}
-.screen{display:none;flex:1;flex-direction:column;animation:fadein .22s ease}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:2px;font-size:.62rem;font-weight:650;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line);color:var(--dim)}
+.badge-demo{border-color:var(--line);color:var(--dim)}
+.badge-pro{border-color:var(--ok);color:var(--ok)}
+.divider{height:1px;background:var(--line2);margin:14px 0}
+.screen{display:none;flex:1;flex-direction:column;animation:fadein .18s ease}
 .screen.active{display:flex}
-@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 
 /* header */
-.apphead{display:flex;align-items:center;gap:12px;padding:6px 0 16px}
-.apphead .logo{width:40px;height:40px;flex:none}
+.apphead{display:flex;align-items:center;gap:12px;padding:6px 0 14px;border-bottom:1px solid var(--line2);margin-bottom:14px}
+.apphead .logo{width:36px;height:36px;flex:none}
 .apphead .title{flex:1}
-.apphead .title h1{font-size:1.2rem}
-.iconbtn{width:40px;height:40px;border-radius:12px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.apphead .title h1{font-size:1.1rem}
+.iconbtn{width:38px;height:38px;border-radius:var(--r);background:transparent;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--dim)}
 
 /* stepper */
-.stepper{display:flex;gap:4px;margin:4px 0 14px}
-.step{flex:1;display:flex;flex-direction:column;gap:6px;align-items:center}
-.step .bar{height:5px;width:100%;border-radius:3px;background:var(--line)}
+.stepper{display:flex;gap:3px;margin:2px 0 16px}
+.step{flex:1;display:flex;flex-direction:column;gap:7px;align-items:center}
+.step .bar{height:2px;width:100%;background:var(--line)}
 .step.done .bar{background:var(--ok)}
-.step.now .bar{background:var(--laser);box-shadow:0 0 10px rgba(255,59,48,.6)}
-.step .lbl{font-size:.6rem;color:var(--faint);text-align:center;line-height:1.1}
-.step.now .lbl{color:var(--text);font-weight:700}
+.step.now .bar{background:var(--laser)}
+.step .lbl{font-size:.56rem;color:var(--faint);text-align:center;line-height:1.1;text-transform:uppercase;letter-spacing:.06em}
+.step.now .lbl{color:var(--text);font-weight:650}
 .step.done .lbl{color:var(--ok)}
 
-/* checklists */
-.check{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);margin-top:8px;cursor:pointer;transition:border-color .15s}
-.check input{width:20px;height:20px;flex:none;accent-color:var(--laser);margin-top:1px}
-.check.checked{border-color:rgba(52,211,153,.5)}
-.check.checked .ck-t{color:var(--dim);text-decoration:line-through}
-.check .ck-t{font-size:.92rem;line-height:1.35}
+/* checklists — hairline rows, not bubbles */
+.check{display:flex;gap:12px;align-items:flex-start;padding:12px 2px;border-bottom:1px solid var(--line2);cursor:pointer}
+.check input{width:18px;height:18px;flex:none;accent-color:var(--laser);margin-top:1px}
+.check.checked .ck-t{color:var(--faint);text-decoration:line-through}
+.check .ck-t{font-size:.9rem;line-height:1.4}
 
-/* callouts */
-.callout{display:flex;gap:10px;padding:12px 14px;border-radius:12px;font-size:.86rem;line-height:1.45;margin-top:10px}
-.callout .ico{flex:none;font-size:1.05rem}
-.co-danger{background:rgba(255,59,48,.1);border:1px solid rgba(255,59,48,.4)}
-.co-info{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.3)}
-.co-ok{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.35)}
-.co-warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35)}
+/* callouts — left-rule, no fills */
+.callout{display:flex;gap:12px;padding:10px 0 10px 14px;border-left:2px solid var(--line);font-size:.84rem;line-height:1.5;margin-top:12px;color:var(--dim)}
+.callout .ico{flex:none;font-weight:800;font-family:var(--mono)}
+.callout b{color:var(--text)}
+.co-danger{border-left-color:var(--laser)}
+.co-danger .ico{color:var(--laser)}
+.co-info{border-left-color:var(--line)}
+.co-info .ico{color:var(--dim)}
+.co-ok{border-left-color:var(--ok)}
+.co-ok .ico{color:var(--ok)}
+.co-warn{border-left-color:var(--warn)}
+.co-warn .ico{color:var(--warn)}
 
 /* instruction card */
-.instr{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
-.instr .big{font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
-.instr .dirword{color:var(--laser2)}
-.turnchip{display:inline-flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700}
+.instr{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.instr .big{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+.instr .dirword{color:var(--laser)}
+.turnchip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:var(--r);padding:9px 16px;font-weight:600;font-family:var(--mono);font-size:.9rem}
+.bigmark{width:52px;height:52px;border:1.5px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:600;color:var(--dim)}
+.bigmark.ok{border-color:var(--ok);color:var(--ok)}
+.bigmark.alert{border-color:var(--warn);color:var(--warn)}
 
 /* target */
-.targetwrap{position:relative;touch-action:none;user-select:none;margin-top:10px}
-.targetwrap svg{width:100%;height:auto;display:block;border-radius:14px}
-.readout{display:flex;justify-content:space-around;margin-top:10px;gap:8px}
-.readout .cell{flex:1;text-align:center;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px}
-.readout .cell .v{font-weight:800;font-size:1.05rem}
-.readout .cell .k{font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+.targetwrap{position:relative;touch-action:none;user-select:none;margin-top:12px;border:1px solid var(--line2)}
+.targetwrap svg{width:100%;height:auto;display:block}
+.readout{display:flex;margin-top:12px;border:1px solid var(--line2)}
+.readout .cell{flex:1;text-align:center;padding:10px 8px}
+.readout .cell + .cell{border-left:1px solid var(--line2)}
+.readout .cell .v{font-weight:600;font-size:1.25rem;font-family:var(--mono)}
+.readout .cell .k{font-size:.6rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
 
 /* diagrams need explicit sizing or they collapse in flex columns */
 .diagram{width:100%;display:flex;justify-content:center}
 .diagram svg{width:100%;max-width:330px;height:auto}
 
-/* beam animation */
-.beam{stroke:var(--laser);stroke-width:2.5;stroke-dasharray:6 5;animation:march 1s linear infinite;filter:drop-shadow(0 0 4px rgba(255,59,48,.8))}
-@keyframes march{to{stroke-dashoffset:-11}}
-.beamfaint{stroke:#475572;stroke-width:1.5;stroke-dasharray:2 4}
+/* beam animation — functional, not decorative */
+.beam{stroke:var(--laser);stroke-width:2;stroke-dasharray:5 4;animation:march 1.1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-9}}
+.beamfaint{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4}
 
-/* stage list on home */
-.stagerow{display:flex;align-items:center;gap:12px;padding:10px 4px}
-.stagerow .n{width:28px;height:28px;flex:none;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--dim)}
-.stagerow.done .n{background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.5);color:var(--ok)}
-.stagerow .t{flex:1;font-size:.92rem}
-.stagerow .lock{color:var(--faint)}
+/* stage list on home — ledger rows */
+.stagerow{display:flex;align-items:center;gap:14px;padding:11px 2px;border-bottom:1px solid var(--line2)}
+.stagerow:last-of-type{border-bottom:0}
+.stagerow .n{width:26px;height:26px;flex:none;border:1px solid var(--line);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;color:var(--dim);font-family:var(--mono)}
+.stagerow.done .n{border-color:var(--ok);color:var(--ok)}
+.stagerow .t{flex:1;font-size:.9rem}
+.stagerow .lock{font-size:.6rem;font-weight:650;letter-spacing:.12em;color:var(--faint);border:1px solid var(--line);border-radius:2px;padding:2px 6px}
 
 /* modal */
-.modal-bg{position:fixed;inset:0;background:rgba(4,6,12,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
 .modal-bg.open{display:flex}
-.modal{background:var(--card);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:680px;max-height:88dvh;overflow:auto;animation:slideup .22s ease}
-@keyframes slideup{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
-@media(min-width:700px){.modal-bg{align-items:center;padding:20px}.modal{border-radius:20px}}
+.modal{background:var(--bg);border-top:1px solid var(--line);padding:22px 18px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:680px;max-height:88dvh;overflow:auto;animation:slideup .18s ease}
+@keyframes slideup{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media(min-width:700px){.modal-bg{align-items:center;padding:20px}.modal{border:1px solid var(--line);border-radius:var(--r)}}
 
-.footer-safety{margin-top:auto;padding-top:16px}
-.kv{display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem}
+.footer-safety{margin-top:auto;padding-top:18px}
+.kv{display:flex;justify-content:space-between;padding:7px 0;font-size:.86rem;border-bottom:1px solid var(--line2)}
+.kv:last-child{border-bottom:0}
 .kv .k{color:var(--dim)}
-label.fld{display:block;margin-top:12px;font-size:.8rem;color:var(--dim)}
+label.fld{display:block;margin-top:12px;font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.08em}
 label.fld input,label.fld select{margin-top:6px}
-.seg{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin-top:8px}
-.seg button{flex:1;padding:9px 6px;border-radius:9px;font-size:.86rem;font-weight:600;color:var(--dim)}
-.seg button.on{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.shotchip{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:999px}
-.chip-near{background:rgba(56,189,248,.14);color:var(--near);border:1px solid rgba(56,189,248,.4)}
-.chip-far{background:rgba(255,59,48,.12);color:var(--laser2);border:1px solid rgba(255,59,48,.4)}
-.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--laser);animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
-details.help{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}
-details.help summary{padding:10px 14px;cursor:pointer;font-size:.86rem;font-weight:600;color:var(--dim);list-style:none}
-details.help summary::before{content:"💡 "}
-details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-height:1.5}
-.report-shot{font-size:.82rem;color:var(--dim);padding:3px 0}
+.shotchip{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:2px;background:transparent}
+.chip-near{color:var(--near);border:1px solid var(--line)}
+.chip-far{color:var(--laser);border:1px solid rgba(255,59,48,.55)}
+details.help{margin-top:10px;border-top:1px solid var(--line2)}
+details.help summary{padding:12px 2px;cursor:pointer;font-size:.68rem;font-weight:600;color:var(--faint);list-style:none;text-transform:uppercase;letter-spacing:.1em}
+details.help summary::after{content:" +";color:var(--faint)}
+details[open].help summary::after{content:" \2212"}
+details.help .body{padding:0 2px 12px;font-size:.84rem;color:var(--dim);line-height:1.5}
+.report-shot{font-size:.82rem;color:var(--dim);padding:4px 0;font-family:var(--mono);font-size:.76rem}
 @media print{
   body{background:#fff;color:#000}
   .no-print{display:none !important}
-  .card{box-shadow:none;border-color:#ccc}
+  .card{border-color:#ccc}
 }
 </style>
 </head>
@@ -169,13 +179,13 @@ details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-he
   <!-- ============ HOME ============ -->
   <section class="screen" id="screen-home">
     <div class="apphead">
-      <svg class="logo" viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="16" fill="#151b2c" stroke="#26304a"/><line x1="10" y1="32" x2="42" y2="32" stroke="#ff3b30" stroke-width="3" stroke-linecap="round"/><line x1="42" y1="32" x2="42" y2="52" stroke="#ff3b30" stroke-width="3" stroke-linecap="round"/><rect x="36" y="24" width="12" height="4" rx="1" transform="rotate(45 42 30)" fill="#93a0bd"/><circle cx="42" cy="52" r="5" fill="#ff3b30" opacity=".9"><animate attributeName="opacity" values=".5;1;.5" dur="1.6s" repeatCount="indefinite"/></circle></svg>
+      <svg class="logo" viewBox="0 0 64 64"><rect x="1" y="1" width="62" height="62" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/><line x1="10" y1="30" x2="42" y2="30" stroke="#ff3b30" stroke-width="3"/><line x1="42" y1="30" x2="42" y2="50" stroke="#ff3b30" stroke-width="3"/><line x1="34" y1="22" x2="50" y2="38" stroke="currentColor" stroke-width="2.5"/><circle cx="42" cy="52" r="4.5" fill="#ff3b30"/></svg>
       <div class="title">
         <h1>BeamTrue</h1>
         <div class="tiny">Laser mirror alignment, without the guesswork</div>
       </div>
       <span id="license-badge" class="badge badge-demo">Demo</span>
-      <button class="iconbtn" id="btn-settings" title="Settings">⚙︎</button>
+      <button class="iconbtn" id="btn-settings" title="Settings">···</button>
     </div>
 
     <div class="card">
@@ -212,10 +222,10 @@ details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-he
 
     <div class="footer-safety no-print">
       <div class="callout co-danger">
-        <div class="ico">⚠️</div>
+        <div class="ico">!</div>
         <div><b>Laser safety.</b> A CO₂ beam is invisible and reflects. Never bypass interlocks, wear rated eyewear, keep hands and head out of the beam path, and only fire deliberate low-power test pulses.</div>
       </div>
-      <div class="tiny" style="text-align:center;margin-top:10px">BeamTrue <span id="ver"></span> · works fully offline once installed</div>
+      <div class="tiny" style="text-align:center;margin-top:12px">BeamTrue <span id="ver"></span> · works fully offline once installed</div>
     </div>
   </section>
 
@@ -232,7 +242,7 @@ details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-he
     <div class="stepper" id="wiz-stepper"></div>
     <div id="wiz-body"></div>
     <div class="footer-safety no-print">
-      <div class="tiny" style="text-align:center">⚠️ Rated eyewear on · interlocks in · hands clear · low-power pulses only</div>
+      <div class="tiny" style="text-align:center">Safety — rated eyewear on · interlocks in · hands clear · low-power pulses only</div>
     </div>
   </section>
 
@@ -241,7 +251,7 @@ details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-he
     <div class="apphead no-print">
       <button class="iconbtn" id="btn-report-back" title="Home">←</button>
       <div class="title"><h1>Alignment report</h1><div class="tiny">A record of this alignment session</div></div>
-      <button class="iconbtn" id="btn-print" title="Print / save PDF">🖨</button>
+      <button class="btn btn-ghost btn-sm" id="btn-print" title="Print / save PDF">Print</button>
     </div>
     <div id="report-body"></div>
   </section>
@@ -286,7 +296,7 @@ details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-he
       <label class="fld">Mirror mount screws
         <select id="mp-mount"><option value="3std">3 screws — top, bottom-left, bottom-right (standard)</option><option value="3inv">3 screws — bottom, top-left, top-right (inverted)</option></select>
       </label>
-      <div class="callout co-info"><div class="ico">ℹ️</div><div>Not sure? Use the defaults — BeamTrue self-corrects for your machine as you go.</div></div>
+      <div class="callout co-info"><div class="ico">i</div><div>Not sure? Use the defaults — BeamTrue self-corrects for your machine as you go.</div></div>
       <div style="height:12px"></div>
       <button class="btn btn-primary" id="btn-machine-save">Save profile</button>
     </div>
@@ -324,7 +334,7 @@ details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-he
    3. Adjustment engine             6. Home / settings / license
    ============================================================ */
 'use strict';
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const LS_KEY  = 'beamtrue.v1';
 
 /* ---------- 1. CONFIG ---------- */
@@ -567,26 +577,26 @@ function machineSVG(stId){
   const m2x = left? ox-10 : ox+bw+10;
   const hx  = ox+bw*0.55;                                  // head X
   const seg=(x1,y1,x2,y2,on)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${on?'beam':'beamfaint'}"/>`;
-  const mirror=(x,y,label,hot)=>`<g><rect x="${x-7}" y="${y-7}" width="14" height="14" rx="3" fill="${hot?'rgba(255,59,48,.25)':'var(--card2)'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.5"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="9" fill="${hot?'var(--laser2)':'var(--dim)'}" font-weight="700">${label}</text></g>`;
+  const mirror=(x,y,label,hot)=>`<g><rect x="${x-7}" y="${y-7}" width="14" height="14" fill="${hot?'rgba(255,59,48,.12)':'none'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.2"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="9" fill="${hot?'var(--laser)':'var(--dim)'}" font-weight="700">${label}</text></g>`;
   const hot = { tube:['t','1'], m1m2:['1','2'], m2m3:['2','3'], m3noz:['3','h'], verify:['h'] }[stId]||[];
   const H_ = k => hot.includes(k);
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
-  s += `<rect x="${ox}" y="${oy}" width="${bw}" height="${bh}" rx="6" fill="var(--bg2)" stroke="var(--line)"/>`;
-  s += `<text x="${ox+bw/2}" y="${oy+bh+16}" text-anchor="middle" font-size="9" fill="var(--faint)">FRONT (you stand here)</text>`;
-  s += `<text x="${ox+bw-4}" y="${oy-22}" text-anchor="end" font-size="9" fill="var(--faint)">REAR</text>`;
+  s += `<rect x="${ox}" y="${oy}" width="${bw}" height="${bh}" fill="none" stroke="var(--line)"/>`;
+  s += `<text x="${ox+bw/2}" y="${oy+bh+16}" text-anchor="middle" font-size="8" letter-spacing="1.2" fill="var(--faint)">FRONT — YOU STAND HERE</text>`;
+  s += `<text x="${ox+bw-4}" y="${oy-22}" text-anchor="end" font-size="8" letter-spacing="1.2" fill="var(--faint)">REAR</text>`;
   // tube along the rear
   const tx1 = left? ox+bw*0.15 : ox+bw*0.05, tx2 = left? ox+bw*0.95 : ox+bw*0.85;
-  s += `<rect x="${Math.min(tx1,tx2)}" y="${tubeY-5}" width="${Math.abs(tx2-tx1)}" height="10" rx="5" fill="${H_('t')?'rgba(255,59,48,.2)':'var(--card2)'}" stroke="${H_('t')?'var(--laser)':'var(--faint)'}"/>`;
-  s += `<text x="${(tx1+tx2)/2}" y="${tubeY-9}" text-anchor="middle" font-size="8" fill="var(--dim)">laser tube</text>`;
+  s += `<rect x="${Math.min(tx1,tx2)}" y="${tubeY-5}" width="${Math.abs(tx2-tx1)}" height="10" rx="5" fill="${H_('t')?'rgba(255,59,48,.12)':'none'}" stroke="${H_('t')?'var(--laser)':'var(--faint)'}"/>`;
+  s += `<text x="${(tx1+tx2)/2}" y="${tubeY-9}" text-anchor="middle" font-size="7.5" letter-spacing="1" fill="var(--dim)">LASER TUBE</text>`;
   // beam legs
   s += seg(left?tx1:tx2, tubeY, m1x, m1y, stId==='tube');                 // tube → m1
   s += seg(m1x, m1y, m2x, gy, stId==='m1m2');                             // m1 → m2 (down the side)
   s += seg(m2x, gy, hx, gy, stId==='m2m3');                               // m2 → m3 (along gantry)
   // gantry bar
-  s += `<line x1="${ox}" y1="${gy}" x2="${ox+bw}" y2="${gy}" stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity=".8"/>`;
+  s += `<line x1="${ox}" y1="${gy}" x2="${ox+bw}" y2="${gy}" stroke="var(--line)" stroke-width="3"/>`;
   s += mirror(m1x, m1y, '1', H_('1'));
   s += mirror(m2x, gy, '2', H_('2'));
-  s += `<g><circle cx="${hx}" cy="${gy}" r="9" fill="${H_('3')||H_('h')?'rgba(255,59,48,.25)':'var(--card2)'}" stroke="${H_('3')||H_('h')?'var(--laser)':'var(--faint)'}" stroke-width="1.5"/><text x="${hx}" y="${gy+3.5}" text-anchor="middle" font-size="8.5" fill="${H_('3')||H_('h')?'var(--laser2)':'var(--dim)'}" font-weight="700">${stId==='m3noz'||stId==='verify'?'▼':'3'}</text></g>`;
+  s += `<g><circle cx="${hx}" cy="${gy}" r="9" fill="${H_('3')||H_('h')?'rgba(255,59,48,.12)':'none'}" stroke="${H_('3')||H_('h')?'var(--laser)':'var(--faint)'}" stroke-width="1.2"/><text x="${hx}" y="${gy+3.5}" text-anchor="middle" font-size="8.5" fill="${H_('3')||H_('h')?'var(--laser)':'var(--dim)'}" font-weight="700">${stId==='m3noz'||stId==='verify'?'▼':'3'}</text></g>`;
   // movement hints
   if(stId==='m1m2'){
     s += `<g><path d="M ${m2x+(left?18:-18)} ${oy+14} v ${bh-28}" stroke="var(--near)" stroke-width="1.5" marker-end="url(#ah)" fill="none"/><text x="${m2x+(left?24:-24)}" y="${oy+bh/2}" font-size="8" fill="var(--near)" ${left?'':'text-anchor="end"'}>gantry: rear ⇄ front</text></g>`;
@@ -605,32 +615,35 @@ function machineSVG(stId){
 
 /* Front view of a 3-screw mirror mount with the active screws + arrows. */
 function mountSVG(plan, prof){
-  const W=280, H=220, cx=W/2, cy=H/2-6, R=52;
+  const W=280, H=234, cx=W/2, cy=121, R=52;
   const inv = prof.mount==='3inv';
   const P = inv
     ? { b:[cx,cy+R+26], tl:[cx-R-14,cy-R+4], tr:[cx+R+14,cy-R+4] }
     : { t:[cx,cy-R-26], bl:[cx-R-14,cy+R-4], br:[cx+R+14,cy+R-4] };
   const active = {}; (plan?plan.screws:[]).forEach(sc=>active[sc.pos]=sc.dir);
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
-  s += `<rect x="${cx-R-34}" y="${cy-R-40}" width="${2*R+68}" height="${2*R+82}" rx="14" fill="var(--bg2)" stroke="var(--line)"/>`;
-  s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#mirr)" stroke="var(--faint)" stroke-width="2"/>`;
-  s += `<circle cx="${cx-R*0.35}" cy="${cy-R*0.35}" r="${R*0.18}" fill="rgba(255,255,255,.25)"/>`;
-  s += `<defs><radialGradient id="mirr" cx="35%" cy="35%"><stop offset="0%" stop-color="#8fa3c8"/><stop offset="100%" stop-color="#3c4a6b"/></radialGradient></defs>`;
+  s += `<rect x="${cx-R-34}" y="${cy-R-40}" width="${2*R+68}" height="${2*R+82}" fill="none" stroke="var(--line)"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--dim)" stroke-width="1.5"/>`;
+  s += `<line x1="${cx-R+8}" y1="${cy}" x2="${cx+R-8}" y2="${cy}" stroke="var(--line)" stroke-width="1"/>`;
+  s += `<line x1="${cx}" y1="${cy-R+8}" x2="${cx}" y2="${cy+R-8}" stroke="var(--line)" stroke-width="1"/>`;
   for(const [pos,[x,y]] of Object.entries(P)){
     const dir = active[pos];
     const hot = !!dir;
-    s += `<circle cx="${x}" cy="${y}" r="13" fill="${hot?'rgba(255,59,48,.25)':'var(--card2)'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="${hot?2.5:1.5}"/>`;
-    s += `<line x1="${x-6}" y1="${y}" x2="${x+6}" y2="${y}" stroke="${hot?'var(--laser2)':'var(--faint)'}" stroke-width="2"/>`;
-    s += `<line x1="${x}" y1="${y-6}" x2="${x}" y2="${y+6}" stroke="${hot?'var(--laser2)':'var(--faint)'}" stroke-width="2"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="13" fill="${hot?'rgba(255,59,48,.12)':'none'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="${hot?2:1.2}"/>`;
+    s += `<line x1="${x-6}" y1="${y}" x2="${x+6}" y2="${y}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.6"/>`;
+    s += `<line x1="${x}" y1="${y-6}" x2="${x}" y2="${y+6}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.6"/>`;
     if(hot){
       const cw = dir==='cw';
-      const sweep = cw?1:0;
-      s += `<path d="M ${x-19} ${y-8} A 21 21 0 ${cw?'1 1':'0 0'} ${x-19} ${y+8}" fill="none" stroke="var(--warn)" stroke-width="2.5" marker-end="url(#aw)" transform="${cw?`scale(-1,1) translate(${-2*x},0)`:''}"/>`;
-      s += `<text x="${x}" y="${y+30}" text-anchor="middle" font-size="10" font-weight="800" fill="var(--warn)">${cw?'CW ⟳':'CCW ⟲'}</text>`;
+      // clean open ring around the screw; gap + arrowhead show rotation sense
+      s += cw
+        ? `<path d="M ${x-16} ${y-9.5} A 18.5 18.5 0 1 1 ${x-16} ${y+9.5}" fill="none" stroke="var(--laser)" stroke-width="2" marker-end="url(#aw)"/>`
+        : `<path d="M ${x+16} ${y-9.5} A 18.5 18.5 0 1 0 ${x+16} ${y+9.5}" fill="none" stroke="var(--laser)" stroke-width="2" marker-end="url(#aw)"/>`;
+      const labelAbove = pos==='t'||pos==='tl'||pos==='tr';
+      s += `<text x="${x}" y="${labelAbove?y-26:y+33}" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1" fill="var(--laser)">${cw?'CW ⟳':'CCW ⟲'}</text>`;
     }
   }
-  s += `<defs><marker id="aw" markerWidth="7" markerHeight="7" refX="5" refY="2.6" orient="auto"><path d="M0,0 L5.5,2.6 L0,5.2 z" fill="var(--warn)"/></marker></defs>`;
-  s += `<text x="${cx}" y="${H-6}" text-anchor="middle" font-size="9" fill="var(--faint)">mount seen from the front (beam side)</text>`;
+  s += `<defs><marker id="aw" markerWidth="7" markerHeight="7" refX="5" refY="2.6" orient="auto"><path d="M0,0 L5.5,2.6 L0,5.2 z" fill="var(--laser)"/></marker></defs>`;
+  s += `<text x="${cx}" y="${H-6}" text-anchor="middle" font-size="8" letter-spacing="1.2" fill="var(--faint)">MOUNT SEEN FROM THE FRONT — BEAM SIDE</text>`;
   return s+'</svg>';
 }
 
@@ -638,22 +651,22 @@ function mountSVG(plan, prof){
 function tubeSVG(axis, moveSign){
   const W=300,H=150;
   let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
-  s+=`<rect x="10" y="98" width="280" height="8" rx="3" fill="var(--line)"/>`;
-  s+=`<rect x="40" y="52" width="200" height="26" rx="13" fill="var(--card2)" stroke="var(--faint)"/>`;
-  s+=`<text x="140" y="47" text-anchor="middle" font-size="9" fill="var(--dim)">laser tube (output end → Mirror 1)</text>`;
-  s+=`<rect x="58" y="78" width="14" height="22" fill="var(--card2)" stroke="var(--faint)"/><rect x="208" y="78" width="14" height="22" fill="rgba(255,59,48,.25)" stroke="var(--laser)"/>`;
-  s+=`<text x="65" y="118" text-anchor="middle" font-size="8.5" fill="var(--faint)">rear mount</text>`;
-  s+=`<text x="215" y="118" text-anchor="middle" font-size="8.5" fill="var(--laser2)">output mount ← adjust this one</text>`;
+  s+=`<line x1="10" y1="102" x2="290" y2="102" stroke="var(--line)" stroke-width="1.5"/>`;
+  s+=`<rect x="40" y="52" width="200" height="26" rx="13" fill="none" stroke="var(--dim)"/>`;
+  s+=`<text x="140" y="45" text-anchor="middle" font-size="7.5" letter-spacing="1" fill="var(--dim)">LASER TUBE — OUTPUT END → MIRROR 1</text>`;
+  s+=`<rect x="58" y="78" width="14" height="22" fill="none" stroke="var(--faint)"/><rect x="208" y="78" width="14" height="22" fill="rgba(255,59,48,.12)" stroke="var(--laser)"/>`;
+  s+=`<text x="65" y="118" text-anchor="middle" font-size="7.5" letter-spacing=".8" fill="var(--faint)">REAR MOUNT</text>`;
+  s+=`<text x="215" y="118" text-anchor="middle" font-size="7.5" letter-spacing=".8" fill="var(--laser)">OUTPUT MOUNT — ADJUST</text>`;
   s+=`<line x1="240" y1="65" x2="292" y2="65" class="beam"/>`;
   if(axis==='v'){
     const up = moveSign>0;
-    s+=`<path d="M 258 ${up?58:72} v ${up?-26:26}" stroke="var(--warn)" stroke-width="3" marker-end="url(#at)" fill="none"/>`;
-    s+=`<text x="264" y="${up?26:112}" font-size="10" font-weight="800" fill="var(--warn)">${up?'RAISE':'LOWER'}</text>`;
+    s+=`<path d="M 258 ${up?58:72} v ${up?-26:26}" stroke="var(--laser)" stroke-width="2.5" marker-end="url(#at)" fill="none"/>`;
+    s+=`<text x="264" y="${up?26:112}" font-size="10" font-weight="700" letter-spacing="1" fill="var(--laser)">${up?'RAISE':'LOWER'}</text>`;
   }else{
-    s+=`<circle cx="258" cy="30" r="11" fill="none" stroke="var(--warn)" stroke-width="2"/><text x="258" y="34" text-anchor="middle" font-size="10" font-weight="800" fill="var(--warn)">${moveSign>0?'⊙':'⊗'}</text>`;
-    s+=`<text x="258" y="14" text-anchor="middle" font-size="9" fill="var(--warn)">shift ${moveSign>0?'towards FRONT':'towards REAR'}</text>`;
+    s+=`<circle cx="258" cy="30" r="11" fill="none" stroke="var(--laser)" stroke-width="1.8"/><text x="258" y="34" text-anchor="middle" font-size="10" font-weight="700" fill="var(--laser)">${moveSign>0?'⊙':'⊗'}</text>`;
+    s+=`<text x="258" y="13" text-anchor="middle" font-size="8" letter-spacing=".8" fill="var(--laser)">SHIFT ${moveSign>0?'TOWARDS FRONT':'TOWARDS REAR'}</text>`;
   }
-  s+=`<defs><marker id="at" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--warn)"/></marker></defs></svg>`;
+  s+=`<defs><marker id="at" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--laser)"/></marker></defs></svg>`;
   return s;
 }
 
@@ -663,7 +676,7 @@ function targetSVG(marks, activeIdx){
   const X=h=>cx+h*sc, Y=v=>cy-v*sc;
   let s=`<svg id="tgt" viewBox="0 0 ${W} ${W}" xmlns="http://www.w3.org/2000/svg" style="background:var(--bg2)">`;
   // tape
-  s+=`<rect x="8" y="20" width="${W-16}" height="${W-40}" rx="6" fill="rgba(232,224,200,.1)" stroke="var(--line)"/>`;
+  s+=`<rect x="8" y="20" width="${W-16}" height="${W-40}" fill="none" stroke="var(--line)"/>`;
   // grid every 5mm
   for(let g=-15; g<=15; g+=5){
     s+=`<line x1="${X(g)}" y1="${Y(-R)}" x2="${X(g)}" y2="${Y(R)}" stroke="var(--line)" stroke-width="${g===0?0:0.6}" opacity=".5"/>`;
@@ -673,15 +686,17 @@ function targetSVG(marks, activeIdx){
   s+=`<circle cx="${cx}" cy="${cy}" r="${APERTURE/2*sc}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
   s+=`<line x1="${X(-R)}" y1="${cy}" x2="${X(R)}" y2="${cy}" stroke="var(--faint)" stroke-width="1"/>`;
   s+=`<line x1="${cx}" y1="${Y(-R)}" x2="${cx}" y2="${Y(R)}" stroke="var(--faint)" stroke-width="1"/>`;
-  s+=`<text x="${cx+APERTURE/2*sc+4}" y="${cy-4}" font-size="8" fill="var(--faint)">mirror edge</text>`;
+  s+=`<text x="${cx+APERTURE/2*sc+4}" y="${cy-4}" font-size="7" letter-spacing=".8" fill="var(--faint)">MIRROR EDGE</text>`;
   s+=`<text x="${X(5)+2}" y="${Y(0)+10}" font-size="7" fill="var(--faint)">5mm</text>`;
   marks.forEach((m,i)=>{
     const col = m.cls==='near' ? 'var(--near)' : m.cls==='far' ? 'var(--laser)' : 'var(--warn)';
     const x = m.h===null?cx:X(m.h), y = m.v===null?cy:Y(m.v);
     s+=`<g id="mk-${i}" transform="translate(${x},${y})" style="${m.h===null?'display:none':''}">`;
-    s+=`<circle r="8" fill="${col}" opacity=".28"/><circle r="4" fill="${col}"/>`;
-    if(m.label) s+=`<text y="-11" text-anchor="middle" font-size="9" font-weight="800" fill="${col}">${m.label}</text>`;
-    if(i===activeIdx) s+=`<circle r="12" fill="none" stroke="${col}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    // near = hollow reticle ring, far = solid burn dot: reads like a drawing, not a sticker
+    if(m.cls==='near') s+=`<circle r="6" fill="none" stroke="${col}" stroke-width="1.8"/><circle r="1.4" fill="${col}"/>`;
+    else s+=`<circle r="5" fill="${col}"/>`;
+    if(m.label) s+=`<text y="-11" text-anchor="middle" font-size="9" font-weight="700" fill="${col}">${m.label}</text>`;
+    if(i===activeIdx) s+=`<circle r="12" fill="none" stroke="${col}" stroke-width="1" stroke-dasharray="3 3"/>`;
     s+=`</g>`;
   });
   return s+'</svg>';
@@ -806,14 +821,14 @@ function resultHTML(st, d){
   const res = planAdjustment(st, err, S.profile, S.settings.tol);
   const learn = d._lastLearn;
   let learnNote = '';
-  if(learn && learn.flipped) learnNote = `<div class="callout co-warn"><div class="ico">🔁</div><div><b>Your mount works the other way round</b> — the mark moved opposite to the prediction. BeamTrue has flipped its model for this mirror, and the instruction below already uses the corrected direction.</div></div>`;
-  else if(learn && !learn.flipped && !res.pass) learnNote = `<div class="callout co-info"><div class="ico">📐</div><div>Good — the mark moved as predicted. BeamTrue has calibrated how strongly this screw moves <i>your</i> beam.</div></div>`;
+  if(learn && learn.flipped) learnNote = `<div class="callout co-warn"><div class="ico">↺</div><div><b>Your mount works the other way round</b> — the mark moved opposite to the prediction. BeamTrue has flipped its model for this mirror, and the instruction below already uses the corrected direction.</div></div>`;
+  else if(learn && !learn.flipped && !res.pass) learnNote = `<div class="callout co-info"><div class="ico">±</div><div>Good — the mark moved as predicted. BeamTrue has calibrated how strongly this screw moves <i>your</i> beam.</div></div>`;
 
   if(res.pass){
     const isLast = S.session.stageIdx === STAGES.length-1;
     return `
     <div class="card instr">
-      <div style="font-size:2.6rem">✅</div>
+      <div class="bigmark ok">✓</div>
       <div class="big">Within tolerance</div>
       <div class="small">${st.type==='nearfar'
         ? `Near and far marks are ${fmt(res.mag)} apart (limit ${fmt(S.settings.tol)}). The beam is parallel to this axis.`
@@ -832,7 +847,7 @@ function resultHTML(st, d){
     const backIdx = yLeg ? 1 : 2;               // stage index to revisit
     return `
     <div class="card instr">
-      <div style="font-size:2.2rem">🔍</div>
+      <div class="bigmark alert">!</div>
       <div class="big">Corners disagree by ${fmt(res.mag)}</div>
       <div class="small" style="text-align:left">The <b>${cname}</b> mark is the odd one out. That points at the <b>${yLeg?'front-to-back (gantry) leg — Mirror 1':'left-to-right (head) leg — Mirror 2'}</b>. Revisit that stage, bring it back within tolerance, then run this verification again.</div>
       <button class="btn btn-primary" id="btn-goto-stage" data-goto="${backIdx}">Revisit Stage ${backIdx+1} · ${esc(STAGES[backIdx].title)}</button>
@@ -877,7 +892,7 @@ function centeringAdvice(st, d){
   const cx=(r.marks[0].h+r.marks[1].h)/2, cy=(r.marks[0].v+r.marks[1].v)/2;
   const off=Math.hypot(cx,cy);
   if(off < APERTURE*0.28) return '';
-  return `<div class="callout co-warn" style="text-align:left"><div class="ico">🎯</div><div><b>Parallel but off-centre</b> — both marks sit ${fmt(off)} from the middle of the mirror. That's a beam <i>position</i> issue, not an angle issue: nudge the ${st.id==='m1m2'?'laser tube in its mounts':'upstream mirror in its slotted holder'} that way, then re-test this stage. If the marks are safely inside the mirror edge you can also carry on and fix it later.</div></div>`;
+  return `<div class="callout co-warn" style="text-align:left"><div class="ico">◎</div><div><b>Parallel but off-centre</b> — both marks sit ${fmt(off)} from the middle of the mirror. That's a beam <i>position</i> issue, not an angle issue: nudge the ${st.id==='m1m2'?'laser tube in its mounts':'upstream mirror in its slotted holder'} that way, then re-test this stage. If the marks are safely inside the mirror edge you can also carry on and fix it later.</div></div>`;
 }
 function adjusterName(st){
   return { tube:'the tube mounts', m1:'Mirror 1', m2:'Mirror 2', m3:'Mirror 3' }[st.adjuster] || st.adjuster;
@@ -885,7 +900,7 @@ function adjusterName(st){
 function paywallHTML(st){
   return `
   <div class="card instr">
-    <div style="font-size:2.2rem">🔒</div>
+    <div class="bigmark">${st.n}</div>
     <div class="big">Stage ${st.n} is a Pro stage</div>
     <div class="small">You've aligned the tube and Mirror 1 — the free stages. A one-off lifetime key unlocks the rest of the beam path (${STAGES.filter(s=>!s.free).map(s=>s.short).join(', ')}), the self-learning screw model on every mirror, and printable reports.</div>
     <button class="btn btn-primary" id="btn-paywall-unlock">Unlock BeamTrue Pro</button>
@@ -999,7 +1014,7 @@ function renderReport(rep){
   const dur = Math.max(1, Math.round((new Date(rep.finishedAt)-new Date(rep.startedAt))/60000));
   el.innerHTML = `
   <div class="card">
-    <h2>✅ ${esc(rep.machine)} — aligned</h2>
+    <h2>${esc(rep.machine)} — aligned</h2>
     <div class="kv"><span class="k">Date</span><span>${new Date(rep.finishedAt).toLocaleString()}</span></div>
     <div class="kv"><span class="k">Duration</span><span>≈ ${dur} min</span></div>
     <div class="kv"><span class="k">Tolerance</span><span>${fmt(rep.tol)}</span></div>
@@ -1014,7 +1029,7 @@ function renderReport(rep){
     ${s.finalErr?`<div class="report-shot">Final error: ${fmt(Math.hypot(s.finalErr.h,s.finalErr.v))}</div>`:''}
     ${s.adjustments.map(a=>`<div class="report-shot">↳ ${esc(a.turns)} on ${esc(a.screws)} (${a.axis==='v'?'vertical':'horizontal'})</div>`).join('')}
   </div>`).join('')}
-  <div class="callout co-ok"><div class="ico">🧾</div><div>Keep this with your maintenance log. Re-check alignment monthly or after any knock, mirror clean, or tube change.</div></div>`;
+  <div class="callout co-ok"><div class="ico">✓</div><div>Keep this with your maintenance log. Re-check alignment monthly or after any knock, mirror clean, or tube change.</div></div>`;
 }
 
 /* ---------- 6. HOME / SETTINGS / LICENSE ---------- */
@@ -1033,7 +1048,7 @@ function renderHome(){
       <div class="stagerow ${done?'done':''}">
         <div class="n">${done?'✓':st.n}</div>
         <div class="t">${esc(st.title)}</div>
-        ${locked?'<span class="lock">🔒 Pro</span>':`<span class="tiny">${st.type==='nearfar'?'near/far':st.type==='corners'?'4 corners':'centre'}</span>`}
+        ${locked?'<span class="lock">Pro</span>':`<span class="tiny">${st.type==='nearfar'?'near/far':st.type==='corners'?'4 corners':'centre'}</span>`}
       </div>`);
   });
   $('#btn-resume').style.display = S.session ? 'flex' : 'none';
@@ -1131,10 +1146,10 @@ function boot(){
     const k=$('#lic-key').value;
     if(validKey(k)){
       S.license={key:k.toUpperCase().trim(), tier:'pro'}; save();
-      $('#lic-msg').textContent='✅ Activated — lifetime licence. Thank you!';
+      $('#lic-msg').textContent='✓ Activated — lifetime licence. Thank you!';
       setTimeout(()=>{ closeModal('#modal-license'); renderHome(); if($('#screen-wizard').classList.contains('active')) renderWizard(); },900);
     }else{
-      $('#lic-msg').textContent='❌ That key doesn\'t check out — watch for O/0 and I/1 mix-ups (keys never contain letter O, I, L or U).';
+      $('#lic-msg').textContent='✕ That key doesn\'t check out — watch for O/0 and I/1 mix-ups (keys never contain letter O, I, L or U).';
     }
   });
 
