@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
+<meta name="description" content="BeamTrue — guided CO2 laser mirror alignment. Tell it where the burn mark landed; it tells you exactly which screw to turn.">
+<title>BeamTrue — Laser Mirror Alignment</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+/* ============================================================
+   BeamTrue — single-file app. Sections:
+   1. Design tokens & base   2. Layout & components
+   3. Target input           4. Diagrams
+   ============================================================ */
+:root{
+  --bg:#0b0e14; --bg2:#111624; --card:#151b2c; --card2:#1b2338;
+  --line:#26304a; --text:#e8ecf6; --dim:#93a0bd; --faint:#5b6785;
+  --laser:#ff3b30; --laser2:#ff6b5e; --ok:#34d399; --warn:#fbbf24;
+  --near:#38bdf8; --accent:#ff3b30;
+  --r:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+[data-theme="light"]{
+  --bg:#f2f4f9; --bg2:#e8ebf3; --card:#ffffff; --card2:#f4f6fb;
+  --line:#d7dce8; --text:#141a28; --dim:#4c5872; --faint:#8b95ab;
+  --shadow:0 10px 30px rgba(20,30,60,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
+  background:var(--bg); color:var(--text); min-height:100dvh;
+  background-image:radial-gradient(1200px 600px at 70% -10%, rgba(255,59,48,.07), transparent 60%);
+}
+#app{max-width:680px;margin:0 auto;padding:16px 16px calc(24px + env(safe-area-inset-bottom));min-height:100dvh;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:inherit;color:var(--text);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input:focus,select:focus{outline:2px solid var(--laser);outline-offset:1px;border-color:transparent}
+h1{font-size:1.5rem;letter-spacing:-.02em}
+h2{font-size:1.15rem;letter-spacing:-.01em}
+h3{font-size:1rem}
+.small{font-size:.82rem;color:var(--dim)}
+.tiny{font-size:.72rem;color:var(--faint)}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ---- components ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.card + .card{margin-top:12px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 18px;border-radius:14px;font-weight:650;font-size:1rem;transition:transform .06s ease, filter .15s;user-select:none}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--laser),#e0261b);color:#fff;box-shadow:0 6px 20px rgba(255,59,48,.35)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{background:var(--card2);border:1px solid var(--line);color:var(--text)}
+.btn-ghost:hover{filter:brightness(1.1)}
+.btn-ok{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.btn-sm{width:auto;padding:8px 14px;font-size:.86rem;border-radius:10px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.row{display:flex;gap:10px;align-items:center}
+.row>.btn{flex:1}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.badge-demo{background:rgba(251,191,36,.15);color:var(--warn);border:1px solid rgba(251,191,36,.35)}
+.badge-pro{background:rgba(52,211,153,.15);color:var(--ok);border:1px solid rgba(52,211,153,.35)}
+.divider{height:1px;background:var(--line);margin:14px 0}
+.screen{display:none;flex:1;flex-direction:column;animation:fadein .22s ease}
+.screen.active{display:flex}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* header */
+.apphead{display:flex;align-items:center;gap:12px;padding:6px 0 16px}
+.apphead .logo{width:40px;height:40px;flex:none}
+.apphead .title{flex:1}
+.apphead .title h1{font-size:1.2rem}
+.iconbtn{width:40px;height:40px;border-radius:12px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+
+/* stepper */
+.stepper{display:flex;gap:4px;margin:4px 0 14px}
+.step{flex:1;display:flex;flex-direction:column;gap:6px;align-items:center}
+.step .bar{height:5px;width:100%;border-radius:3px;background:var(--line)}
+.step.done .bar{background:var(--ok)}
+.step.now .bar{background:var(--laser);box-shadow:0 0 10px rgba(255,59,48,.6)}
+.step .lbl{font-size:.6rem;color:var(--faint);text-align:center;line-height:1.1}
+.step.now .lbl{color:var(--text);font-weight:700}
+.step.done .lbl{color:var(--ok)}
+
+/* checklists */
+.check{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);margin-top:8px;cursor:pointer;transition:border-color .15s}
+.check input{width:20px;height:20px;flex:none;accent-color:var(--laser);margin-top:1px}
+.check.checked{border-color:rgba(52,211,153,.5)}
+.check.checked .ck-t{color:var(--dim);text-decoration:line-through}
+.check .ck-t{font-size:.92rem;line-height:1.35}
+
+/* callouts */
+.callout{display:flex;gap:10px;padding:12px 14px;border-radius:12px;font-size:.86rem;line-height:1.45;margin-top:10px}
+.callout .ico{flex:none;font-size:1.05rem}
+.co-danger{background:rgba(255,59,48,.1);border:1px solid rgba(255,59,48,.4)}
+.co-info{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.3)}
+.co-ok{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.35)}
+.co-warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35)}
+
+/* instruction card */
+.instr{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.instr .big{font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
+.instr .dirword{color:var(--laser2)}
+.turnchip{display:inline-flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700}
+
+/* target */
+.targetwrap{position:relative;touch-action:none;user-select:none;margin-top:10px}
+.targetwrap svg{width:100%;height:auto;display:block;border-radius:14px}
+.readout{display:flex;justify-content:space-around;margin-top:10px;gap:8px}
+.readout .cell{flex:1;text-align:center;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px}
+.readout .cell .v{font-weight:800;font-size:1.05rem}
+.readout .cell .k{font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+
+/* diagrams need explicit sizing or they collapse in flex columns */
+.diagram{width:100%;display:flex;justify-content:center}
+.diagram svg{width:100%;max-width:330px;height:auto}
+
+/* beam animation */
+.beam{stroke:var(--laser);stroke-width:2.5;stroke-dasharray:6 5;animation:march 1s linear infinite;filter:drop-shadow(0 0 4px rgba(255,59,48,.8))}
+@keyframes march{to{stroke-dashoffset:-11}}
+.beamfaint{stroke:#475572;stroke-width:1.5;stroke-dasharray:2 4}
+
+/* stage list on home */
+.stagerow{display:flex;align-items:center;gap:12px;padding:10px 4px}
+.stagerow .n{width:28px;height:28px;flex:none;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--dim)}
+.stagerow.done .n{background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.5);color:var(--ok)}
+.stagerow .t{flex:1;font-size:.92rem}
+.stagerow .lock{color:var(--faint)}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(4,6,12,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:680px;max-height:88dvh;overflow:auto;animation:slideup .22s ease}
+@keyframes slideup{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+@media(min-width:700px){.modal-bg{align-items:center;padding:20px}.modal{border-radius:20px}}
+
+.footer-safety{margin-top:auto;padding-top:16px}
+.kv{display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem}
+.kv .k{color:var(--dim)}
+label.fld{display:block;margin-top:12px;font-size:.8rem;color:var(--dim)}
+label.fld input,label.fld select{margin-top:6px}
+.seg{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin-top:8px}
+.seg button{flex:1;padding:9px 6px;border-radius:9px;font-size:.86rem;font-weight:600;color:var(--dim)}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.shotchip{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:999px}
+.chip-near{background:rgba(56,189,248,.14);color:var(--near);border:1px solid rgba(56,189,248,.4)}
+.chip-far{background:rgba(255,59,48,.12);color:var(--laser2);border:1px solid rgba(255,59,48,.4)}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--laser);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+details.help{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}
+details.help summary{padding:10px 14px;cursor:pointer;font-size:.86rem;font-weight:600;color:var(--dim);list-style:none}
+details.help summary::before{content:"💡 "}
+details.help .body{padding:0 14px 12px;font-size:.84rem;color:var(--dim);line-height:1.5}
+.report-shot{font-size:.82rem;color:var(--dim);padding:3px 0}
+@media print{
+  body{background:#fff;color:#000}
+  .no-print{display:none !important}
+  .card{box-shadow:none;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ HOME ============ -->
+  <section class="screen" id="screen-home">
+    <div class="apphead">
+      <svg class="logo" viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="16" fill="#151b2c" stroke="#26304a"/><line x1="10" y1="32" x2="42" y2="32" stroke="#ff3b30" stroke-width="3" stroke-linecap="round"/><line x1="42" y1="32" x2="42" y2="52" stroke="#ff3b30" stroke-width="3" stroke-linecap="round"/><rect x="36" y="24" width="12" height="4" rx="1" transform="rotate(45 42 30)" fill="#93a0bd"/><circle cx="42" cy="52" r="5" fill="#ff3b30" opacity=".9"><animate attributeName="opacity" values=".5;1;.5" dur="1.6s" repeatCount="indefinite"/></circle></svg>
+      <div class="title">
+        <h1>BeamTrue</h1>
+        <div class="tiny">Laser mirror alignment, without the guesswork</div>
+      </div>
+      <span id="license-badge" class="badge badge-demo">Demo</span>
+      <button class="iconbtn" id="btn-settings" title="Settings">⚙︎</button>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div class="tiny">MACHINE</div>
+          <h2 id="home-machine-name">Koenig K0906</h2>
+          <div class="small" id="home-machine-sub">100W CO₂ · 900 × 600 mm bed · 3 mirrors</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-edit-machine">Edit</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:6px">Alignment path</h3>
+      <div class="small" style="margin-bottom:6px">Work through the beam path in order. Each stage: tape on, test-fire, tap where the mark landed — BeamTrue tells you which screw to turn.</div>
+      <div id="home-stages"></div>
+      <div class="divider"></div>
+      <button class="btn btn-primary" id="btn-start">Start alignment</button>
+      <div style="height:8px"></div>
+      <button class="btn btn-ghost" id="btn-resume" style="display:none">Resume session</button>
+      <button class="btn btn-ghost" id="btn-report-home" style="display:none;margin-top:8px">View last report</button>
+    </div>
+
+    <div class="card" id="home-upsell">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <h3>BeamTrue Pro</h3>
+          <div class="small">One-off payment · lifetime usability · all stages, verification &amp; reports</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-license">Unlock</button>
+      </div>
+    </div>
+
+    <div class="footer-safety no-print">
+      <div class="callout co-danger">
+        <div class="ico">⚠️</div>
+        <div><b>Laser safety.</b> A CO₂ beam is invisible and reflects. Never bypass interlocks, wear rated eyewear, keep hands and head out of the beam path, and only fire deliberate low-power test pulses.</div>
+      </div>
+      <div class="tiny" style="text-align:center;margin-top:10px">BeamTrue <span id="ver"></span> · works fully offline once installed</div>
+    </div>
+  </section>
+
+  <!-- ============ WIZARD ============ -->
+  <section class="screen" id="screen-wizard">
+    <div class="apphead">
+      <button class="iconbtn" id="btn-wiz-home" title="Home">←</button>
+      <div class="title">
+        <h1 id="wiz-title">Stage</h1>
+        <div class="tiny" id="wiz-sub"></div>
+      </div>
+      <span class="badge badge-demo" id="wiz-badge" style="display:none">Demo</span>
+    </div>
+    <div class="stepper" id="wiz-stepper"></div>
+    <div id="wiz-body"></div>
+    <div class="footer-safety no-print">
+      <div class="tiny" style="text-align:center">⚠️ Rated eyewear on · interlocks in · hands clear · low-power pulses only</div>
+    </div>
+  </section>
+
+  <!-- ============ REPORT ============ -->
+  <section class="screen" id="screen-report">
+    <div class="apphead no-print">
+      <button class="iconbtn" id="btn-report-back" title="Home">←</button>
+      <div class="title"><h1>Alignment report</h1><div class="tiny">A record of this alignment session</div></div>
+      <button class="iconbtn" id="btn-print" title="Print / save PDF">🖨</button>
+    </div>
+    <div id="report-body"></div>
+  </section>
+
+  <!-- ============ MODALS ============ -->
+  <div class="modal-bg" id="modal-settings">
+    <div class="modal">
+      <h2>Settings</h2>
+      <label class="fld">Units
+        <select id="set-units"><option value="mm">Millimetres</option><option value="in">Inches</option></select>
+      </label>
+      <label class="fld">Alignment tolerance (how close marks must be)
+        <select id="set-tol"><option value="0.5">0.5 mm — professional</option><option value="1" selected>1.0 mm — recommended</option><option value="1.5">1.5 mm — relaxed</option><option value="2">2.0 mm — coarse first pass</option></select>
+      </label>
+      <label class="fld">Test-pulse power (% shown in instructions)
+        <input type="number" id="set-power" min="5" max="40" step="1" value="15">
+      </label>
+      <label class="fld">Theme
+        <select id="set-theme"><option value="auto">Match device</option><option value="dark">Dark</option><option value="light">Light</option></select>
+      </label>
+      <div class="divider"></div>
+      <button class="btn btn-ghost" id="btn-reset-learning">Reset learned screw directions</button>
+      <div class="tiny" style="margin-top:6px">BeamTrue learns how <i>your</i> mounts respond and remembers it per mirror. Reset if you've changed or rebuilt a mount.</div>
+      <div class="divider"></div>
+      <button class="btn btn-ghost" id="btn-wipe">Erase all app data</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-primary" id="btn-settings-close">Done</button>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="modal-machine">
+    <div class="modal">
+      <h2>Machine profile</h2>
+      <label class="fld">Machine name<input id="mp-name" placeholder="e.g. Koenig K0906"></label>
+      <div class="row" style="gap:10px">
+        <label class="fld" style="flex:1">Bed width X (mm)<input id="mp-bedx" type="number" min="100" max="3000"></label>
+        <label class="fld" style="flex:1">Bed depth Y (mm)<input id="mp-bedy" type="number" min="100" max="3000"></label>
+      </div>
+      <label class="fld">Mirror 2 rides on the gantry's…
+        <select id="mp-m2side"><option value="left">Left end (most common)</option><option value="right">Right end</option></select>
+      </label>
+      <label class="fld">Mirror mount screws
+        <select id="mp-mount"><option value="3std">3 screws — top, bottom-left, bottom-right (standard)</option><option value="3inv">3 screws — bottom, top-left, top-right (inverted)</option></select>
+      </label>
+      <div class="callout co-info"><div class="ico">ℹ️</div><div>Not sure? Use the defaults — BeamTrue self-corrects for your machine as you go.</div></div>
+      <div style="height:12px"></div>
+      <button class="btn btn-primary" id="btn-machine-save">Save profile</button>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="modal-license">
+    <div class="modal">
+      <h2>BeamTrue Pro</h2>
+      <div class="small" style="margin-top:6px">Pay once, aligned for life. The free version covers the laser tube and Mirror&nbsp;1 so you can see exactly how BeamTrue works on your machine.</div>
+      <div class="card" style="margin-top:12px;background:var(--card2)">
+        <div class="kv"><span class="k">Full alignment path</span><span>M1 → M2 → M3 → nozzle</span></div>
+        <div class="kv"><span class="k">Four-corner verification</span><span>included</span></div>
+        <div class="kv"><span class="k">Self-learning screw model</span><span>included</span></div>
+        <div class="kv"><span class="k">Printable reports</span><span>included</span></div>
+        <div class="kv"><span class="k">Licence</span><span><b>lifetime, one-off</b></span></div>
+      </div>
+      <a class="btn btn-primary" style="margin-top:12px;text-decoration:none" href="https://makersedgelaser.mystagingwebsite.com" target="_blank" rel="noopener">Get a lifetime key</a>
+      <div class="divider"></div>
+      <label class="fld">Already have a key?<input id="lic-key" placeholder="BT-XXXXX-XXXXX-XXXXX" autocapitalize="characters" autocomplete="off"></label>
+      <div class="tiny" id="lic-msg" style="margin-top:6px"></div>
+      <div style="height:10px"></div>
+      <button class="btn btn-ok" id="btn-lic-apply">Activate</button>
+      <div style="height:8px"></div>
+      <button class="btn btn-ghost" id="btn-lic-close">Not now</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   BeamTrue engine + UI. Sections:
+   1. Config & stage definitions    4. Diagrams (SVG builders)
+   2. State & persistence           5. Wizard flow
+   3. Adjustment engine             6. Home / settings / license
+   ============================================================ */
+'use strict';
+const VERSION = '1.0.0';
+const LS_KEY  = 'beamtrue.v1';
+
+/* ---------- 1. CONFIG ---------- */
+// Geometry defaults derived from a 900x600 Chinese-style CO2 layout (Koenig K0906).
+// gainMmPerTurn: how far the burn mark moves at the FAR position for one full
+// screw turn (M4x0.7 screw, ~20mm lever). Self-corrected per machine as rounds
+// are observed, so these only need to be the right order of magnitude.
+const STAGES = [
+  { id:'tube', n:1, title:'Tube → Mirror 1', short:'Tube→M1', type:'center',
+    adjuster:'tube', target:'Mirror 1', free:true,
+    intro:'The beam must leave the tube and land in the middle of Mirror 1. If it clips the edge of the mirror here, nothing downstream can ever be right.',
+    prep:[
+      'Set power to about {pw}% — just enough to mark tape',
+      'Stick masking tape over the FRONT of the Mirror 1 holder (across its opening)',
+      'Close the lid / keep interlocks active',
+      'Press the test-pulse button ONCE (a short pulse)'
+    ],
+    tapeHint:'Look at the tape on Mirror 1. Tap where the burn mark sits relative to the centre of the mirror opening.',
+    gainMmPerTurn: 1,  // tube moves are ~1:1 translations, expressed in mm not turns
+    dist: 150 },
+  { id:'m1m2', n:2, title:'Mirror 1 → Mirror 2', short:'M1→M2', type:'nearfar',
+    adjuster:'m1', target:'Mirror 2', free:true,
+    intro:'Mirror 2 rides on the gantry. The beam must hit the SAME spot on Mirror 2 with the gantry close to Mirror 1 and far away. If the two marks differ, Mirror 1 needs tilting.',
+    prep:[
+      'Stick fresh masking tape over the Mirror 2 opening',
+      'Move the gantry to the {nearpos} — as CLOSE to Mirror 1 as it goes',
+      'Close the lid and fire ONE test pulse ({pw}%)',
+      'Now push the gantry to the {farpos} — as FAR from Mirror 1 as it goes',
+      'Fire ONE more test pulse on the same tape'
+    ],
+    tapeHint:'You should see two marks (they may overlap — that\'s good!). Tap the NEAR mark first, then the FAR mark.',
+    gainMmPerTurn: 50, dist: 600 },
+  { id:'m2m3', n:3, title:'Mirror 2 → Mirror 3', short:'M2→M3', type:'nearfar',
+    adjuster:'m2', target:'Mirror 3', free:false,
+    intro:'Mirror 3 rides on the laser head. Same trick along the gantry: the beam must hit the same spot on Mirror 3 with the head close to Mirror 2 and far away. If not, Mirror 2 needs tilting.',
+    prep:[
+      'Stick fresh masking tape over the Mirror 3 opening (on the head)',
+      'Slide the head to the {nearpos} — as CLOSE to Mirror 2 as it goes',
+      'Close the lid and fire ONE test pulse ({pw}%)',
+      'Slide the head to the {farpos} — as FAR from Mirror 2 as it goes',
+      'Fire ONE more test pulse on the same tape'
+    ],
+    tapeHint:'Tap the NEAR mark first, then the FAR mark.',
+    gainMmPerTurn: 60, dist: 900 },
+  { id:'m3noz', n:4, title:'Mirror 3 → Nozzle', short:'M3→Noz', type:'center',
+    adjuster:'m3', target:'nozzle', free:false,
+    intro:'Mirror 3 turns the beam straight down through the lens. The beam must exit the CENTRE of the nozzle — off-centre here causes angled cuts and flame-outs on one side.',
+    prep:[
+      'Remove the nozzle tip if it unscrews (optional but clearer), or leave it on',
+      'Stick tape flat across the nozzle exit',
+      'Park the head mid-bed, close the lid, fire ONE gentle pulse ({pw}%)'
+    ],
+    tapeHint:'Look at the tape from underneath. Tap where the mark sits relative to the nozzle centre. Up on this target = towards the REAR of the machine.',
+    gainMmPerTurn: 7, dist: 90 },
+  { id:'verify', n:5, title:'Four-corner verification', short:'Verify', type:'corners',
+    adjuster:null, target:'nozzle', free:false,
+    intro:'The proof: fire one pulse through the nozzle at each corner of the bed. All four marks should land on the same spot of the nozzle. This catches anything the stage-by-stage checks missed.',
+    prep:[
+      'Fresh tape across the nozzle exit',
+      'Jog the head to each corner in turn: rear-left, front-left, rear-right, front-right',
+      'Fire ONE pulse at each corner — same tape, don\'t re-tape between corners'
+    ],
+    tapeHint:'Tap where each corner\'s mark landed. If they all overlap: you\'re aligned.',
+    gainMmPerTurn: 50, dist: 900 }
+];
+const TURN_STOPS = [1/32, 1/16, 3/32, 1/8, 3/16, 1/4, 3/8, 1/2]; // quantised advice
+const APERTURE = 25;     // mm, mirror aperture drawn on the target
+const TAPE_HALF = 18;    // mm, half-width of the tappable tape area
+
+/* ---------- 2. STATE ---------- */
+const defaultLearned = () => ({
+  tube:{ v:{sign:1,gain:null}, h:{sign:1,gain:null} },
+  m1:  { v:{sign:1,gain:null}, h:{sign:1,gain:null} },
+  m2:  { v:{sign:1,gain:null}, h:{sign:1,gain:null} },
+  m3:  { v:{sign:1,gain:null}, h:{sign:1,gain:null} }
+});
+let S = {
+  license:{ key:null, tier:'demo' },
+  settings:{ units:'mm', tol:1.0, power:15, theme:'auto' },
+  profile:{ name:'Koenig K0906', bedX:900, bedY:600, m2side:'left', mount:'3std', learned:defaultLearned() },
+  session:null,          // active alignment session
+  lastReport:null
+};
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const p = JSON.parse(raw); S = Object.assign(S, p);
+      S.profile.learned = Object.assign(defaultLearned(), S.profile.learned||{}); }
+  }catch(e){}
+}
+function newSession(){
+  return {
+    startedAt: new Date().toISOString(),
+    stageIdx: 0, sub:'prep',
+    stages: STAGES.map(st => ({ id:st.id, rounds:[], adjustments:[], passed:false })),
+    pending:null   // {adjuster, axis, screwLabel, dir, turns, expectMm, beforeDelta}
+  };
+}
+
+/* ---------- 3. ADJUSTMENT ENGINE ---------- */
+/*
+ Coordinates: every tape target is what the user SEES looking at the tape.
+ h = +right, v = +up (for the nozzle target, +up = towards machine rear).
+
+ For 'center' stages the error is the mark itself (want it at 0,0).
+ For 'nearfar' stages the error is far − near (want the far mark ON the near mark).
+
+ The correction we ask for moves the mark by −error. Screw mapping (defaults,
+ auto-flipped per machine by the learning loop):
+   vertical   → the single odd screw (top on a standard mount): CW = mark DOWN
+   horizontal → the screw pair turned opposite ways (yaw):      pair A = mark LEFT
+*/
+function stageError(st, stage){
+  const r = stage.rounds[stage.rounds.length-1];
+  if(!r) return null;
+  if(st.type==='center') return { h:r.marks[0].h, v:r.marks[0].v };
+  if(st.type==='nearfar'){
+    const [near, far] = r.marks;
+    return { h:far.h-near.h, v:far.v-near.v };
+  }
+  if(st.type==='corners'){
+    // max pairwise spread vs the rear-left reference mark
+    const ref = r.marks[0];
+    let worst = {h:0,v:0,mag:0,idx:0};
+    r.marks.forEach((m,i)=>{ const h=m.h-ref.h, v=m.v-ref.v, mag=Math.hypot(h,v);
+      if(mag>worst.mag) worst={h,v,mag,idx:i}; });
+    return { h:worst.h, v:worst.v, cornerIdx:worst.idx };
+  }
+}
+function quantTurns(t){
+  let best = TURN_STOPS[0];
+  for(const s of TURN_STOPS){ if(Math.abs(s-t) < Math.abs(best-t)) best = s; }
+  return best;
+}
+function fracLabel(t){
+  const map = {0.03125:'1/32',0.0625:'1/16',0.09375:'3/32',0.125:'1/8',0.1875:'3/16',0.25:'1/4',0.375:'3/8',0.5:'1/2'};
+  return map[t] || t.toFixed(3);
+}
+function screwPlanFor(adjuster, axis, moveSign, prof){
+  // moveSign: +1 = move mark up (v) / right (h) as the user sees the tape
+  const inv = prof.mount==='3inv';           // odd screw at bottom instead of top
+  const learned = prof.learned[adjuster][axis];
+  const eff = moveSign * learned.sign;       // apply per-machine learned flip
+  if(axis==='v'){
+    // default: CW on the odd screw moves the mark DOWN → to move UP, turn CCW
+    const dir = eff>0 ? 'ccw' : 'cw';
+    return { screws:[{ pos: inv?'b':'t', dir }], desc: inv?'bottom screw':'top screw' };
+  }else{
+    // yaw pair: default pair (left CW + right CCW) moves the mark LEFT
+    const leftCW = eff<0;
+    const p1 = inv?'tl':'bl', p2 = inv?'tr':'br';
+    return { screws:[ {pos:p1, dir:leftCW?'cw':'ccw'}, {pos:p2, dir:leftCW?'ccw':'cw'} ],
+             desc: (inv?'top':'bottom')+' pair (opposite ways)' };
+  }
+}
+function planAdjustment(st, err, prof, tol){
+  const mag = Math.hypot(err.h, err.v);
+  if(mag <= tol) return { pass:true, mag };
+  // verification stage has nothing of its own to adjust — it points back
+  // at whichever leg of the beam path the disagreeing corner implicates
+  if(!st.adjuster) return { pass:false, mag, verifyFail:true, cornerIdx:err.cornerIdx };
+  // one axis at a time: fix the dominant error first, then re-test
+  const axis = Math.abs(err.v) >= Math.abs(err.h) ? 'v' : 'h';
+  const errMm = axis==='v' ? err.v : err.h;
+  const moveMm = -errMm;                                   // move mark opposite to error
+  const learned = prof.learned[st.adjuster][axis];
+  const gain = learned.gain || st.gainMmPerTurn;           // mm of mark movement per turn
+  if(st.adjuster==='tube'){
+    return { pass:false, mag, axis, tube:true, moveMm,
+             moveSign:Math.sign(moveMm), amountMm:Math.min(Math.abs(moveMm),5) };
+  }
+  const rawTurns = Math.abs(moveMm)/gain;
+  const turns = quantTurns(Math.min(rawTurns, 0.5));
+  const plan = screwPlanFor(st.adjuster, axis, Math.sign(moveMm), prof);
+  return { pass:false, mag, axis, moveMm, moveSign:Math.sign(moveMm),
+           turns, turnsLabel:fracLabel(turns), plan, gain };
+}
+/* Learning: compare what actually happened after an adjustment to what we
+   predicted. Wrong direction → flip the sign for that mirror+axis and say so.
+   Right direction → refine the gain (mm per turn) with smoothing. */
+function learnFromRound(st, stage, prof){
+  const p = S.session.pending;
+  if(!p || p.stageId!==st.id || stage.rounds.length<2) return null;
+  const prev = stage.rounds[stage.rounds.length-2];
+  const cur  = stage.rounds[stage.rounds.length-1];
+  const errOf = r => {
+    if(st.type==='center') return { h:r.marks[0].h, v:r.marks[0].v };
+    return { h:r.marks[1].h-r.marks[0].h, v:r.marks[1].v-r.marks[0].v };
+  };
+  const before = errOf(prev), after = errOf(cur);
+  const observed = (p.axis==='v') ? after.v-before.v : after.h-before.h;   // how the error moved
+  S.session.pending = null;
+  if(Math.abs(observed) < 0.2) return null;                // too small to judge
+  const learned = prof.learned[st.adjuster][p.axis];
+  if(Math.sign(observed) !== Math.sign(p.expectMm)){
+    learned.sign *= -1; save();
+    return { flipped:true, axis:p.axis };
+  }
+  if(p.turns > 0){
+    const g = Math.min(500, Math.max(1, Math.abs(observed)/p.turns));
+    learned.gain = learned.gain ? (learned.gain*0.5 + g*0.5) : g;
+    save();
+  }
+  return { flipped:false, axis:p.axis };
+}
+
+/* ---------- helpers ---------- */
+const $  = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fmt(mm){
+  if(S.settings.units==='in') return (mm/25.4).toFixed(2)+'″';
+  return (Math.round(mm*10)/10)+' mm';
+}
+function show(id){
+  $$('.screen').forEach(el=>el.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function isFree(st){ return st.free || S.license.tier==='pro'; }
+function posWord(which, stId){
+  const left = S.profile.m2side==='left';
+  if(stId==='m1m2') return which==='near' ? 'REAR' : 'FRONT';
+  return which==='near' ? (left?'far LEFT':'far RIGHT') : (left?'far RIGHT':'far LEFT');
+}
+
+/* ---------- 4. DIAGRAMS ---------- */
+/* Top view of the machine; highlights the active beam leg + a movement hint. */
+function machineSVG(stId){
+  const W=320, H=230, pad=26;
+  const bx=S.profile.bedX, by=S.profile.bedY;
+  const scale = Math.min((W-2*pad)/bx, (H-2*pad-30)/by);
+  const bw=bx*scale, bh=by*scale, ox=(W-bw)/2, oy=34;
+  const left = S.profile.m2side==='left';
+  const m1x = left? ox-10 : ox+bw+10;                      // mirror 1 beside rear corner
+  const m1y = oy-8;
+  const tubeY = oy-8;
+  const gy  = oy+bh*0.45;                                  // gantry Y for drawing
+  const m2x = left? ox-10 : ox+bw+10;
+  const hx  = ox+bw*0.55;                                  // head X
+  const seg=(x1,y1,x2,y2,on)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${on?'beam':'beamfaint'}"/>`;
+  const mirror=(x,y,label,hot)=>`<g><rect x="${x-7}" y="${y-7}" width="14" height="14" rx="3" fill="${hot?'rgba(255,59,48,.25)':'var(--card2)'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="1.5"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="9" fill="${hot?'var(--laser2)':'var(--dim)'}" font-weight="700">${label}</text></g>`;
+  const hot = { tube:['t','1'], m1m2:['1','2'], m2m3:['2','3'], m3noz:['3','h'], verify:['h'] }[stId]||[];
+  const H_ = k => hot.includes(k);
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect x="${ox}" y="${oy}" width="${bw}" height="${bh}" rx="6" fill="var(--bg2)" stroke="var(--line)"/>`;
+  s += `<text x="${ox+bw/2}" y="${oy+bh+16}" text-anchor="middle" font-size="9" fill="var(--faint)">FRONT (you stand here)</text>`;
+  s += `<text x="${ox+bw-4}" y="${oy-22}" text-anchor="end" font-size="9" fill="var(--faint)">REAR</text>`;
+  // tube along the rear
+  const tx1 = left? ox+bw*0.15 : ox+bw*0.05, tx2 = left? ox+bw*0.95 : ox+bw*0.85;
+  s += `<rect x="${Math.min(tx1,tx2)}" y="${tubeY-5}" width="${Math.abs(tx2-tx1)}" height="10" rx="5" fill="${H_('t')?'rgba(255,59,48,.2)':'var(--card2)'}" stroke="${H_('t')?'var(--laser)':'var(--faint)'}"/>`;
+  s += `<text x="${(tx1+tx2)/2}" y="${tubeY-9}" text-anchor="middle" font-size="8" fill="var(--dim)">laser tube</text>`;
+  // beam legs
+  s += seg(left?tx1:tx2, tubeY, m1x, m1y, stId==='tube');                 // tube → m1
+  s += seg(m1x, m1y, m2x, gy, stId==='m1m2');                             // m1 → m2 (down the side)
+  s += seg(m2x, gy, hx, gy, stId==='m2m3');                               // m2 → m3 (along gantry)
+  // gantry bar
+  s += `<line x1="${ox}" y1="${gy}" x2="${ox+bw}" y2="${gy}" stroke="var(--line)" stroke-width="5" stroke-linecap="round" opacity=".8"/>`;
+  s += mirror(m1x, m1y, '1', H_('1'));
+  s += mirror(m2x, gy, '2', H_('2'));
+  s += `<g><circle cx="${hx}" cy="${gy}" r="9" fill="${H_('3')||H_('h')?'rgba(255,59,48,.25)':'var(--card2)'}" stroke="${H_('3')||H_('h')?'var(--laser)':'var(--faint)'}" stroke-width="1.5"/><text x="${hx}" y="${gy+3.5}" text-anchor="middle" font-size="8.5" fill="${H_('3')||H_('h')?'var(--laser2)':'var(--dim)'}" font-weight="700">${stId==='m3noz'||stId==='verify'?'▼':'3'}</text></g>`;
+  // movement hints
+  if(stId==='m1m2'){
+    s += `<g><path d="M ${m2x+(left?18:-18)} ${oy+14} v ${bh-28}" stroke="var(--near)" stroke-width="1.5" marker-end="url(#ah)" fill="none"/><text x="${m2x+(left?24:-24)}" y="${oy+bh/2}" font-size="8" fill="var(--near)" ${left?'':'text-anchor="end"'}>gantry: rear ⇄ front</text></g>`;
+  }
+  if(stId==='m2m3'){
+    s += `<g><path d="M ${ox+18} ${gy-16} h ${bw-36}" stroke="var(--near)" stroke-width="1.5" marker-end="url(#ah)" fill="none"/><text x="${ox+bw/2}" y="${gy-22}" font-size="8" fill="var(--near)" text-anchor="middle">head: ${left?'left ⇄ right':'right ⇄ left'}</text></g>`;
+  }
+  if(stId==='verify'){
+    [[ox+14,oy+12],[ox+14,oy+bh-12],[ox+bw-14,oy+12],[ox+bw-14,oy+bh-12]].forEach((c,i)=>{
+      s += `<circle cx="${c[0]}" cy="${c[1]}" r="6" fill="none" stroke="var(--near)" stroke-dasharray="2 2"/><text x="${c[0]}" y="${c[1]+2.8}" text-anchor="middle" font-size="7" fill="var(--near)">${i+1}</text>`;
+    });
+  }
+  s += `<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--near)"/></marker></defs></svg>`;
+  return s;
+}
+
+/* Front view of a 3-screw mirror mount with the active screws + arrows. */
+function mountSVG(plan, prof){
+  const W=280, H=220, cx=W/2, cy=H/2-6, R=52;
+  const inv = prof.mount==='3inv';
+  const P = inv
+    ? { b:[cx,cy+R+26], tl:[cx-R-14,cy-R+4], tr:[cx+R+14,cy-R+4] }
+    : { t:[cx,cy-R-26], bl:[cx-R-14,cy+R-4], br:[cx+R+14,cy+R-4] };
+  const active = {}; (plan?plan.screws:[]).forEach(sc=>active[sc.pos]=sc.dir);
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect x="${cx-R-34}" y="${cy-R-40}" width="${2*R+68}" height="${2*R+82}" rx="14" fill="var(--bg2)" stroke="var(--line)"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#mirr)" stroke="var(--faint)" stroke-width="2"/>`;
+  s += `<circle cx="${cx-R*0.35}" cy="${cy-R*0.35}" r="${R*0.18}" fill="rgba(255,255,255,.25)"/>`;
+  s += `<defs><radialGradient id="mirr" cx="35%" cy="35%"><stop offset="0%" stop-color="#8fa3c8"/><stop offset="100%" stop-color="#3c4a6b"/></radialGradient></defs>`;
+  for(const [pos,[x,y]] of Object.entries(P)){
+    const dir = active[pos];
+    const hot = !!dir;
+    s += `<circle cx="${x}" cy="${y}" r="13" fill="${hot?'rgba(255,59,48,.25)':'var(--card2)'}" stroke="${hot?'var(--laser)':'var(--faint)'}" stroke-width="${hot?2.5:1.5}"/>`;
+    s += `<line x1="${x-6}" y1="${y}" x2="${x+6}" y2="${y}" stroke="${hot?'var(--laser2)':'var(--faint)'}" stroke-width="2"/>`;
+    s += `<line x1="${x}" y1="${y-6}" x2="${x}" y2="${y+6}" stroke="${hot?'var(--laser2)':'var(--faint)'}" stroke-width="2"/>`;
+    if(hot){
+      const cw = dir==='cw';
+      const sweep = cw?1:0;
+      s += `<path d="M ${x-19} ${y-8} A 21 21 0 ${cw?'1 1':'0 0'} ${x-19} ${y+8}" fill="none" stroke="var(--warn)" stroke-width="2.5" marker-end="url(#aw)" transform="${cw?`scale(-1,1) translate(${-2*x},0)`:''}"/>`;
+      s += `<text x="${x}" y="${y+30}" text-anchor="middle" font-size="10" font-weight="800" fill="var(--warn)">${cw?'CW ⟳':'CCW ⟲'}</text>`;
+    }
+  }
+  s += `<defs><marker id="aw" markerWidth="7" markerHeight="7" refX="5" refY="2.6" orient="auto"><path d="M0,0 L5.5,2.6 L0,5.2 z" fill="var(--warn)"/></marker></defs>`;
+  s += `<text x="${cx}" y="${H-6}" text-anchor="middle" font-size="9" fill="var(--faint)">mount seen from the front (beam side)</text>`;
+  return s+'</svg>';
+}
+
+/* Tube-mount adjustment diagram (side view). */
+function tubeSVG(axis, moveSign){
+  const W=300,H=150;
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s+=`<rect x="10" y="98" width="280" height="8" rx="3" fill="var(--line)"/>`;
+  s+=`<rect x="40" y="52" width="200" height="26" rx="13" fill="var(--card2)" stroke="var(--faint)"/>`;
+  s+=`<text x="140" y="47" text-anchor="middle" font-size="9" fill="var(--dim)">laser tube (output end → Mirror 1)</text>`;
+  s+=`<rect x="58" y="78" width="14" height="22" fill="var(--card2)" stroke="var(--faint)"/><rect x="208" y="78" width="14" height="22" fill="rgba(255,59,48,.25)" stroke="var(--laser)"/>`;
+  s+=`<text x="65" y="118" text-anchor="middle" font-size="8.5" fill="var(--faint)">rear mount</text>`;
+  s+=`<text x="215" y="118" text-anchor="middle" font-size="8.5" fill="var(--laser2)">output mount ← adjust this one</text>`;
+  s+=`<line x1="240" y1="65" x2="292" y2="65" class="beam"/>`;
+  if(axis==='v'){
+    const up = moveSign>0;
+    s+=`<path d="M 258 ${up?58:72} v ${up?-26:26}" stroke="var(--warn)" stroke-width="3" marker-end="url(#at)" fill="none"/>`;
+    s+=`<text x="264" y="${up?26:112}" font-size="10" font-weight="800" fill="var(--warn)">${up?'RAISE':'LOWER'}</text>`;
+  }else{
+    s+=`<circle cx="258" cy="30" r="11" fill="none" stroke="var(--warn)" stroke-width="2"/><text x="258" y="34" text-anchor="middle" font-size="10" font-weight="800" fill="var(--warn)">${moveSign>0?'⊙':'⊗'}</text>`;
+    s+=`<text x="258" y="14" text-anchor="middle" font-size="9" fill="var(--warn)">shift ${moveSign>0?'towards FRONT':'towards REAR'}</text>`;
+  }
+  s+=`<defs><marker id="at" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--warn)"/></marker></defs></svg>`;
+  return s;
+}
+
+/* Interactive tape target. marks: [{h,v,cls,label}] in mm. */
+function targetSVG(marks, activeIdx){
+  const R=TAPE_HALF, W=300, sc=(W-40)/(2*R), cx=W/2, cy=W/2;
+  const X=h=>cx+h*sc, Y=v=>cy-v*sc;
+  let s=`<svg id="tgt" viewBox="0 0 ${W} ${W}" xmlns="http://www.w3.org/2000/svg" style="background:var(--bg2)">`;
+  // tape
+  s+=`<rect x="8" y="20" width="${W-16}" height="${W-40}" rx="6" fill="rgba(232,224,200,.1)" stroke="var(--line)"/>`;
+  // grid every 5mm
+  for(let g=-15; g<=15; g+=5){
+    s+=`<line x1="${X(g)}" y1="${Y(-R)}" x2="${X(g)}" y2="${Y(R)}" stroke="var(--line)" stroke-width="${g===0?0:0.6}" opacity=".5"/>`;
+    s+=`<line x1="${X(-R)}" y1="${Y(g)}" x2="${X(R)}" y2="${Y(g)}" stroke="var(--line)" stroke-width="${g===0?0:0.6}" opacity=".5"/>`;
+  }
+  // aperture + crosshair
+  s+=`<circle cx="${cx}" cy="${cy}" r="${APERTURE/2*sc}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s+=`<line x1="${X(-R)}" y1="${cy}" x2="${X(R)}" y2="${cy}" stroke="var(--faint)" stroke-width="1"/>`;
+  s+=`<line x1="${cx}" y1="${Y(-R)}" x2="${cx}" y2="${Y(R)}" stroke="var(--faint)" stroke-width="1"/>`;
+  s+=`<text x="${cx+APERTURE/2*sc+4}" y="${cy-4}" font-size="8" fill="var(--faint)">mirror edge</text>`;
+  s+=`<text x="${X(5)+2}" y="${Y(0)+10}" font-size="7" fill="var(--faint)">5mm</text>`;
+  marks.forEach((m,i)=>{
+    const col = m.cls==='near' ? 'var(--near)' : m.cls==='far' ? 'var(--laser)' : 'var(--warn)';
+    const x = m.h===null?cx:X(m.h), y = m.v===null?cy:Y(m.v);
+    s+=`<g id="mk-${i}" transform="translate(${x},${y})" style="${m.h===null?'display:none':''}">`;
+    s+=`<circle r="8" fill="${col}" opacity=".28"/><circle r="4" fill="${col}"/>`;
+    if(m.label) s+=`<text y="-11" text-anchor="middle" font-size="9" font-weight="800" fill="${col}">${m.label}</text>`;
+    if(i===activeIdx) s+=`<circle r="12" fill="none" stroke="${col}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    s+=`</g>`;
+  });
+  return s+'</svg>';
+}
+/* Tap places the next unset mark; drag fine-tunes it live (DOM updated in
+   place so pointer capture survives); full re-render happens on release. */
+function bindTarget(container, d){
+  const svg = container.querySelector('#tgt');
+  const W=300, sc=(W-40)/(2*TAPE_HALF);
+  const round = () => d.rounds[d.rounds.length-1];
+  const pt = e => {
+    const r = svg.getBoundingClientRect();
+    let h = ((e.clientX-r.left)/r.width*W - W/2)/sc;
+    let v = -(((e.clientY-r.top)/r.height*W) - W/2)/sc;
+    h = Math.max(-TAPE_HALF, Math.min(TAPE_HALF, h));
+    v = Math.max(-TAPE_HALF, Math.min(TAPE_HALF, v));
+    return { h:Math.round(h*10)/10, v:Math.round(v*10)/10 };
+  };
+  let drag=false, idx=-1;
+  const move = e => {
+    const p = pt(e), m = round().marks[idx];
+    m.h=p.h; m.v=p.v;
+    const g = svg.querySelector('#mk-'+idx);
+    if(g){ g.setAttribute('transform',`translate(${W/2+p.h*sc},${W/2-p.v*sc})`); g.style.display=''; }
+    const roh=$('#ro-h'), rov=$('#ro-v');
+    if(roh) roh.textContent=fmt(p.h);
+    if(rov) rov.textContent=fmt(p.v);
+  };
+  svg.addEventListener('pointerdown', e=>{
+    idx = round().marks.findIndex(m=>m.h===null);
+    if(idx===-1) idx = round().marks.length-1;
+    drag=true; svg.setPointerCapture(e.pointerId); move(e);
+  });
+  svg.addEventListener('pointermove', e=>{ if(drag) move(e); });
+  svg.addEventListener('pointerup', ()=>{ if(!drag) return; drag=false; save(); renderWizard(); });
+}
+
+/* ---------- 5. WIZARD ---------- */
+function curStage(){ return STAGES[S.session.stageIdx]; }
+function curData(){ return S.session.stages[S.session.stageIdx]; }
+
+function renderStepper(){
+  const el = $('#wiz-stepper'); el.innerHTML='';
+  STAGES.forEach((st,i)=>{
+    const d = S.session.stages[i];
+    const cls = d.passed ? 'done' : (i===S.session.stageIdx ? 'now' : '');
+    el.insertAdjacentHTML('beforeend',
+      `<div class="step ${cls}"><div class="bar"></div><div class="lbl">${st.short}</div></div>`);
+  });
+}
+function renderWizard(){
+  const st = curStage(), d = curData();
+  $('#wiz-title').textContent = `Stage ${st.n} · ${st.title}`;
+  $('#wiz-sub').textContent = st.type==='nearfar' ? 'Two pulses: near then far' :
+                              st.type==='corners' ? 'Four pulses, one per corner' : 'One pulse, centre it';
+  $('#wiz-badge').style.display = S.license.tier==='pro' ? 'none' : 'inline-flex';
+  renderStepper();
+  const body = $('#wiz-body');
+  if(!isFree(st)){ body.innerHTML = paywallHTML(st); wire(body); return; }
+  if(S.session.sub==='prep')      body.innerHTML = prepHTML(st);
+  else if(S.session.sub==='mark') body.innerHTML = markHTML(st, d);
+  else if(S.session.sub==='result') body.innerHTML = resultHTML(st, d);
+  wire(body);
+}
+function prepHTML(st){
+  const pw = S.settings.power;
+  const steps = st.prep.map(p => p
+    .replace('{pw}', pw)
+    .replace('{nearpos}', posWord('near', st.id))
+    .replace('{farpos}',  posWord('far',  st.id)));
+  return `
+  <div class="card">
+    <div class="small">${esc(st.intro)}</div>
+    <div class="diagram" style="margin-top:12px">${machineSVG(st.id)}</div>
+  </div>
+  <div class="card">
+    <h3>Do this now</h3>
+    ${steps.map((p,i)=>`
+      <label class="check" data-ck="${i}">
+        <input type="checkbox"><span class="ck-t">${esc(p)}</span>
+      </label>`).join('')}
+    <div style="height:14px"></div>
+    <button class="btn btn-primary" id="btn-fired" disabled>Done — show me the tape target</button>
+  </div>
+  ${st.id==='tube' ? `<details class="help"><summary>Why start at the tube?</summary><div class="body">Every mirror downstream can only redirect what it receives. If the beam enters Mirror 1 off-centre or at an angle, you'll chase your tail on every later stage. Ten seconds here saves an hour later.</div></details>`:''}
+  ${st.type==='nearfar' ? `<details class="help"><summary>Why two pulses?</summary><div class="body">One mark only tells you where the beam hit. Two marks — near and far — tell you the beam's <b>direction</b>. If they land on the same spot, the beam is perfectly parallel to the rail. That's the whole game.</div></details>`:''}`;
+}
+function markHTML(st, d){
+  const round = d.rounds[d.rounds.length-1];
+  const marks = round.marks;
+  const idx = marks.findIndex(m=>m.h===null);
+  const activeIdx = idx===-1 ? marks.length-1 : idx;
+  const labels = st.type==='nearfar' ? ['NEAR','FAR'] :
+                 st.type==='corners' ? ['1 rear-left','2 front-left','3 rear-right','4 front-right'] : ['MARK'];
+  const chips = marks.map((m,i)=>{
+    const cls = m.cls==='near'?'chip-near':'chip-far';
+    const done = m.h!==null;
+    return `<button class="shotchip ${cls}" data-mark="${i}" style="${i===activeIdx?'outline:2px solid currentColor;':''}${done?'':'opacity:.55;'}">${done?'●':'○'} ${labels[i]}</button>`;
+  }).join(' ');
+  const allSet = marks.every(m=>m.h!==null);
+  const act = marks[activeIdx];
+  return `
+  <div class="card">
+    <div class="small">${esc(st.tapeHint)}</div>
+    <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px">${chips}</div>
+    <div class="targetwrap" id="twrap">${targetSVG(marks, activeIdx)}</div>
+    <div class="readout">
+      <div class="cell"><div class="v mono" id="ro-h">${act&&act.h!==null?fmt(act.h):'—'}</div><div class="k">→ right</div></div>
+      <div class="cell"><div class="v mono" id="ro-v">${act&&act.v!==null?fmt(act.v):'—'}</div><div class="k">↑ ${st.id==='m3noz'?'rear':'up'}</div></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn btn-ghost" id="btn-nomark">No mark on tape</button>
+      <button class="btn btn-primary" id="btn-marks-done" ${allSet?'':'disabled'}>Analyse</button>
+    </div>
+  </div>
+  <details class="help"><summary>Tips for reading the tape</summary><div class="body">
+    Peer straight at the tape, not at an angle. The mark's centre is what counts — a comet-shaped smear means the pulse was long; use the darkest point. The dashed circle is your ${APERTURE} mm mirror opening; each grid square is 5 mm. Drag to fine-tune after tapping.
+  </div></details>`;
+}
+function resultHTML(st, d){
+  const err = stageError(st, d);
+  const res = planAdjustment(st, err, S.profile, S.settings.tol);
+  const learn = d._lastLearn;
+  let learnNote = '';
+  if(learn && learn.flipped) learnNote = `<div class="callout co-warn"><div class="ico">🔁</div><div><b>Your mount works the other way round</b> — the mark moved opposite to the prediction. BeamTrue has flipped its model for this mirror, and the instruction below already uses the corrected direction.</div></div>`;
+  else if(learn && !learn.flipped && !res.pass) learnNote = `<div class="callout co-info"><div class="ico">📐</div><div>Good — the mark moved as predicted. BeamTrue has calibrated how strongly this screw moves <i>your</i> beam.</div></div>`;
+
+  if(res.pass){
+    const isLast = S.session.stageIdx === STAGES.length-1;
+    return `
+    <div class="card instr">
+      <div style="font-size:2.6rem">✅</div>
+      <div class="big">Within tolerance</div>
+      <div class="small">${st.type==='nearfar'
+        ? `Near and far marks are ${fmt(res.mag)} apart (limit ${fmt(S.settings.tol)}). The beam is parallel to this axis.`
+        : st.type==='corners'
+        ? `All four corners agree within ${fmt(res.mag)}. Your beam is true across the whole bed.`
+        : `The mark is ${fmt(res.mag)} from centre (limit ${fmt(S.settings.tol)}).`}</div>
+      ${centeringAdvice(st,d)}
+      <button class="btn btn-ok" id="btn-next-stage">${isLast?'Finish — view report':'Next stage →'}</button>
+      <button class="btn btn-ghost" id="btn-retest">Re-test this stage</button>
+    </div>`;
+  }
+  // verification failed → diagnose which stage to revisit
+  if(res.verifyFail){
+    const cname = ['rear-left','front-left','rear-right','front-right'][res.cornerIdx]||'a';
+    const yLeg = res.cornerIdx===1;             // front-left disagrees → Y leg
+    const backIdx = yLeg ? 1 : 2;               // stage index to revisit
+    return `
+    <div class="card instr">
+      <div style="font-size:2.2rem">🔍</div>
+      <div class="big">Corners disagree by ${fmt(res.mag)}</div>
+      <div class="small" style="text-align:left">The <b>${cname}</b> mark is the odd one out. That points at the <b>${yLeg?'front-to-back (gantry) leg — Mirror 1':'left-to-right (head) leg — Mirror 2'}</b>. Revisit that stage, bring it back within tolerance, then run this verification again.</div>
+      <button class="btn btn-primary" id="btn-goto-stage" data-goto="${backIdx}">Revisit Stage ${backIdx+1} · ${esc(STAGES[backIdx].title)}</button>
+      <button class="btn btn-ghost" id="btn-remark">Re-enter the marks</button>
+    </div>`;
+  }
+  // needs adjustment
+  let inner;
+  if(res.tube){
+    const word = res.axis==='v'
+      ? (res.moveSign>0?'RAISE':'LOWER')+' the tube\'s OUTPUT-end mount'
+      : 'SHIFT the tube\'s output end '+(res.moveSign>0?'towards the FRONT':'towards the REAR');
+    inner = `
+      <div class="big">${esc(word)}</div>
+      <div class="turnchip">≈ ${fmt(res.amountMm)}</div>
+      <div class="diagram">${tubeSVG(res.axis, res.moveSign)}</div>
+      <div class="small">Loosen the bracket clamp, move it a touch (${fmt(res.amountMm)} ≈ ${res.amountMm<1.2?'a business card':'a coin'} thickness), re-clamp. Adjust the OUTPUT end (nearest Mirror 1); leave the rear mount alone unless you run out of travel.</div>`;
+  }else{
+    const dirWords = res.plan.screws.length===1
+      ? `Turn the <b>${esc(res.plan.desc)}</b> <span class="dirword">${res.plan.screws[0].dir==='cw'?'CLOCKWISE ⟳':'ANTI-CLOCKWISE ⟲'}</span>`
+      : `Turn the <b>${esc(res.plan.desc)}</b>: left screw <span class="dirword">${res.plan.screws[0].dir==='cw'?'CW ⟳':'CCW ⟲'}</span>, right screw <span class="dirword">${res.plan.screws[1].dir==='cw'?'CW ⟳':'CCW ⟲'}</span>`;
+    inner = `
+      <div class="small">To pull the ${st.type==='nearfar'?'FAR mark onto the NEAR mark':'mark to centre'}, on <b>${adjusterName(st)}</b>:</div>
+      <div class="big">${dirWords}</div>
+      <div class="turnchip">${res.turnsLabel} turn · ≈ ${Math.round(res.turns*360)}°</div>
+      <div class="diagram">${mountSVG(res.plan, S.profile)}</div>
+      <div class="small">Small moves win. Turn, then re-test — never crank more than a ${fracLabel(0.5)} turn between pulses.</div>`;
+  }
+  const axisWord = res.axis==='v' ? (st.id==='m3noz'?'front/rear':'vertical') : 'horizontal';
+  return `
+  ${learnNote}
+  <div class="card instr">
+    <div class="small">${st.type==='nearfar'?`Marks are <b>${fmt(res.mag)}</b> apart`:`The mark is <b>${fmt(res.mag)}</b> from centre`} — fixing the <b>${axisWord}</b> error first (one axis at a time).</div>
+    ${inner}
+    <button class="btn btn-primary" id="btn-adjusted">I've turned it — test again</button>
+    <button class="btn btn-ghost" id="btn-remark">Re-enter the marks</button>
+  </div>`;
+}
+function centeringAdvice(st, d){
+  if(st.type!=='nearfar') return '';
+  const r = d.rounds[d.rounds.length-1];
+  const cx=(r.marks[0].h+r.marks[1].h)/2, cy=(r.marks[0].v+r.marks[1].v)/2;
+  const off=Math.hypot(cx,cy);
+  if(off < APERTURE*0.28) return '';
+  return `<div class="callout co-warn" style="text-align:left"><div class="ico">🎯</div><div><b>Parallel but off-centre</b> — both marks sit ${fmt(off)} from the middle of the mirror. That's a beam <i>position</i> issue, not an angle issue: nudge the ${st.id==='m1m2'?'laser tube in its mounts':'upstream mirror in its slotted holder'} that way, then re-test this stage. If the marks are safely inside the mirror edge you can also carry on and fix it later.</div></div>`;
+}
+function adjusterName(st){
+  return { tube:'the tube mounts', m1:'Mirror 1', m2:'Mirror 2', m3:'Mirror 3' }[st.adjuster] || st.adjuster;
+}
+function paywallHTML(st){
+  return `
+  <div class="card instr">
+    <div style="font-size:2.2rem">🔒</div>
+    <div class="big">Stage ${st.n} is a Pro stage</div>
+    <div class="small">You've aligned the tube and Mirror 1 — the free stages. A one-off lifetime key unlocks the rest of the beam path (${STAGES.filter(s=>!s.free).map(s=>s.short).join(', ')}), the self-learning screw model on every mirror, and printable reports.</div>
+    <button class="btn btn-primary" id="btn-paywall-unlock">Unlock BeamTrue Pro</button>
+    <button class="btn btn-ghost" id="btn-wiz-home2">Back to home</button>
+  </div>`;
+}
+function newRound(st){
+  const marks = st.type==='nearfar'
+    ? [{h:null,v:null,cls:'near',label:'N'},{h:null,v:null,cls:'far',label:'F'}]
+    : st.type==='corners'
+    ? [1,2,3,4].map(i=>({h:null,v:null,cls: i===1?'near':'far',label:String(i)}))
+    : [{h:null,v:null,cls:'far',label:''}];
+  curData().rounds.push({ ts:Date.now(), marks });
+}
+
+/* wire events for the freshly rendered wizard body */
+function wire(root){
+  const st = curStage(), d = curData();
+  // prep checklist
+  const cks = root.querySelectorAll('.check');
+  if(cks.length){
+    const update = ()=>{
+      let all=true;
+      cks.forEach(c=>{ const on=c.querySelector('input').checked;
+        c.classList.toggle('checked',on); if(!on) all=false; });
+      const b=root.querySelector('#btn-fired'); if(b) b.disabled=!all;
+    };
+    cks.forEach(c=>c.querySelector('input').addEventListener('change',update));
+  }
+  const on=(sel,fn)=>{ const el=root.querySelector(sel); if(el) el.addEventListener('click',fn); };
+  on('#btn-fired', ()=>{ newRound(st); S.session.sub='mark'; save(); renderWizard(); });
+  on('#btn-marks-done', ()=>{
+    d._lastLearn = learnFromRound(st, d, S.profile);
+    S.session.sub='result'; save(); renderWizard();
+  });
+  on('#btn-nomark', ()=>{ alert(noMarkAdvice(st)); });
+  on('#btn-adjusted', ()=>{
+    const err = stageError(st,d);
+    const res = planAdjustment(st, err, S.profile, S.settings.tol);
+    if(!res.pass && !res.tube){
+      S.session.pending = { stageId:st.id, adjuster:st.adjuster, axis:res.axis,
+        turns:res.turns, expectMm:res.moveMm };
+      d.adjustments.push({ ts:Date.now(), axis:res.axis, turns:res.turnsLabel,
+        screws:res.plan.screws.map(s=>s.pos+':'+s.dir).join(' ') });
+    }else if(res.tube){
+      S.session.pending = { stageId:st.id, adjuster:'tube', axis:res.axis, turns:0, expectMm:res.moveMm };
+      d.adjustments.push({ ts:Date.now(), axis:res.axis, turns:fmt(res.amountMm), screws:'tube mount' });
+    }
+    newRound(st); S.session.sub='mark'; save(); renderWizard();
+  });
+  on('#btn-remark', ()=>{ S.session.sub='mark'; save(); renderWizard(); });
+  on('#btn-retest', ()=>{ newRound(st); S.session.sub='mark'; save(); renderWizard(); });
+  on('#btn-next-stage', ()=>{
+    d.passed=true; d._lastLearn=null; S.session.pending=null;
+    if(S.session.stageIdx < STAGES.length-1){ S.session.stageIdx++; S.session.sub='prep'; save(); renderWizard(); }
+    else { finishSession(); }
+  });
+  on('#btn-paywall-unlock', ()=>openModal('#modal-license'));
+  on('#btn-wiz-home2', ()=>{ save(); renderHome(); show('#screen-home'); });
+  on('#btn-goto-stage', e=>{
+    const idx = +e.currentTarget.dataset.goto;
+    // that stage and everything after it need re-proving
+    for(let i=idx; i<STAGES.length; i++) S.session.stages[i].passed = false;
+    S.session.stageIdx = idx; S.session.sub='prep'; S.session.pending=null;
+    save(); renderWizard();
+  });
+  // mark chips
+  root.querySelectorAll('[data-mark]').forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      const i=+ch.dataset.mark;
+      const r=d.rounds[d.rounds.length-1];
+      // re-activating an already-set mark lets you re-place it
+      if(r.marks[i].h!==null){ r.marks[i].h=null; r.marks[i].v=null; }
+      // move nulls after i to preserve fill order? keep simple: just rerender
+      save(); renderWizard();
+    });
+  });
+  // target input
+  const tw = root.querySelector('#twrap');
+  if(tw) bindTarget(tw, d);
+}
+function noMarkAdvice(st){
+  if(st.id==='tube') return 'No mark means the beam missed the tape entirely.\n\n1. Check the tube actually fired (look for the purple glow in the tube).\n2. Tape a BIGGER area — cover the whole mirror holder face.\n3. If it still misses, the tube is aimed well off: sight along the tube towards Mirror 1 and centre it roughly by eye first, then pulse again.';
+  if(st.type==='nearfar') return 'No mark on the tape?\n\n1. Make sure the previous stage still passes (re-check it).\n2. Tape a bigger area around the mirror opening.\n3. Fire at the NEAR position only — if that hits but FAR misses, the beam is way off parallel: bring the FAR mark on with big cautious corrections (1/2 turn), re-taping each time.';
+  return 'No mark under the nozzle usually means the beam is clipping inside the lens tube.\n\n1. Remove the lens tube/nozzle and tape its TOP opening — pulse: is the beam entering centred?\n2. If yes, refit and check the lens is seated and clean.\n3. If no, re-run Stage 3 (M2 → M3).';
+}
+function finishSession(){
+  S.session.stages[STAGES.length-1].passed = true;
+  S.lastReport = buildReport();
+  const done = S.session; S.session = null;
+  save(); renderReport(S.lastReport); show('#screen-report');
+}
+function buildReport(){
+  return {
+    machine: S.profile.name, finishedAt: new Date().toISOString(),
+    startedAt: S.session.startedAt, tol: S.settings.tol,
+    stages: S.session.stages.map((d,i)=>({
+      title: STAGES[i].title,
+      rounds: d.rounds.length,
+      adjustments: d.adjustments,
+      finalErr: d.rounds.length ? stageError(STAGES[i], d) : null,
+      passed: d.passed
+    }))
+  };
+}
+
+/* ---------- REPORT ---------- */
+function renderReport(rep){
+  const el=$('#report-body');
+  if(!rep){ el.innerHTML='<div class="card small">No report yet — complete an alignment first.</div>'; return; }
+  const dur = Math.max(1, Math.round((new Date(rep.finishedAt)-new Date(rep.startedAt))/60000));
+  el.innerHTML = `
+  <div class="card">
+    <h2>✅ ${esc(rep.machine)} — aligned</h2>
+    <div class="kv"><span class="k">Date</span><span>${new Date(rep.finishedAt).toLocaleString()}</span></div>
+    <div class="kv"><span class="k">Duration</span><span>≈ ${dur} min</span></div>
+    <div class="kv"><span class="k">Tolerance</span><span>${fmt(rep.tol)}</span></div>
+  </div>
+  ${rep.stages.map((s,i)=>`
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h3>${i+1}. ${esc(s.title)}</h3>
+      <span class="badge ${s.passed?'badge-pro':'badge-demo'}">${s.passed?'Pass':'—'}</span>
+    </div>
+    <div class="report-shot">Test rounds: ${s.rounds} · Adjustments made: ${s.adjustments.length}</div>
+    ${s.finalErr?`<div class="report-shot">Final error: ${fmt(Math.hypot(s.finalErr.h,s.finalErr.v))}</div>`:''}
+    ${s.adjustments.map(a=>`<div class="report-shot">↳ ${esc(a.turns)} on ${esc(a.screws)} (${a.axis==='v'?'vertical':'horizontal'})</div>`).join('')}
+  </div>`).join('')}
+  <div class="callout co-ok"><div class="ico">🧾</div><div>Keep this with your maintenance log. Re-check alignment monthly or after any knock, mirror clean, or tube change.</div></div>`;
+}
+
+/* ---------- 6. HOME / SETTINGS / LICENSE ---------- */
+function renderHome(){
+  $('#home-machine-name').textContent = S.profile.name;
+  $('#home-machine-sub').textContent = `${S.profile.bedX} × ${S.profile.bedY} mm bed · 3 mirrors · M2 on ${S.profile.m2side}`;
+  const lb=$('#license-badge');
+  if(S.license.tier==='pro'){ lb.textContent='Pro · lifetime'; lb.className='badge badge-pro'; $('#home-upsell').style.display='none'; }
+  else { lb.textContent='Demo'; lb.className='badge badge-demo'; $('#home-upsell').style.display='block'; }
+  const list=$('#home-stages'); list.innerHTML='';
+  STAGES.forEach((st,i)=>{
+    const d = S.session ? S.session.stages[i] : null;
+    const done = d && d.passed;
+    const locked = !isFree(st);
+    list.insertAdjacentHTML('beforeend', `
+      <div class="stagerow ${done?'done':''}">
+        <div class="n">${done?'✓':st.n}</div>
+        <div class="t">${esc(st.title)}</div>
+        ${locked?'<span class="lock">🔒 Pro</span>':`<span class="tiny">${st.type==='nearfar'?'near/far':st.type==='corners'?'4 corners':'centre'}</span>`}
+      </div>`);
+  });
+  $('#btn-resume').style.display = S.session ? 'flex' : 'none';
+  $('#btn-start').textContent = S.session ? 'Start over' : 'Start alignment';
+  $('#btn-report-home').style.display = S.lastReport ? 'flex' : 'none';
+}
+function openModal(id){ $(id).classList.add('open'); }
+function closeModal(id){ $(id).classList.remove('open'); }
+
+/* license keys: BT-XXXXX-XXXXX-XXXXX, base32-ish, last char = checksum.
+   v1 scheme (offline): checksum = weighted char sum mod 32. Keys are issued
+   from a pre-generated batch (see README). Swap for signed keys at scale. */
+const KEY_ALPHA='ABCDEFGHJKMNPQRSTVWXYZ0123456789';
+function keyChecksum(body){
+  let sum=0; [...body].forEach((c,i)=>{ const v=KEY_ALPHA.indexOf(c); sum+=(v<0?7:v)*(i+3); });
+  return KEY_ALPHA[sum % KEY_ALPHA.length];
+}
+function validKey(k){
+  k=(k||'').toUpperCase().trim();
+  const m=k.match(/^BT-([A-Z0-9]{5})-([A-Z0-9]{5})-([A-Z0-9]{5})$/);
+  if(!m) return false;
+  const body=m[1]+m[2]+m[3];
+  return keyChecksum(body.slice(0,-1))===body.slice(-1);
+}
+function genKey(){ // used by the owner (console: BT.genKey()) to issue keys
+  let b=''; for(let i=0;i<14;i++) b+=KEY_ALPHA[Math.floor(Math.random()*KEY_ALPHA.length)];
+  b+=keyChecksum(b);
+  return `BT-${b.slice(0,5)}-${b.slice(5,10)}-${b.slice(10,15)}`;
+}
+window.BT={genKey,validKey,version:VERSION};
+
+function applyTheme(){
+  const t=S.settings.theme;
+  if(t==='auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme',t);
+}
+
+/* ---------- boot & top-level events ---------- */
+function boot(){
+  load(); applyTheme();
+  $('#ver').textContent='v'+VERSION;
+  renderHome(); show('#screen-home');
+
+  $('#btn-start').addEventListener('click',()=>{
+    if(S.session && !confirm('Start a fresh alignment? The current session will be discarded.')) return;
+    S.session=newSession(); save();
+    S.session.sub='prep'; renderWizard(); show('#screen-wizard');
+  });
+  $('#btn-resume').addEventListener('click',()=>{ renderWizard(); show('#screen-wizard'); });
+  $('#btn-wiz-home').addEventListener('click',()=>{ save(); renderHome(); show('#screen-home'); });
+  $('#btn-report-home').addEventListener('click',()=>{ renderReport(S.lastReport); show('#screen-report'); });
+  $('#btn-report-back').addEventListener('click',()=>{ renderHome(); show('#screen-home'); });
+  $('#btn-print').addEventListener('click',()=>window.print());
+
+  // settings
+  $('#btn-settings').addEventListener('click',()=>{
+    $('#set-units').value=S.settings.units; $('#set-tol').value=String(S.settings.tol);
+    $('#set-power').value=S.settings.power; $('#set-theme').value=S.settings.theme;
+    openModal('#modal-settings');
+  });
+  $('#btn-settings-close').addEventListener('click',()=>{
+    S.settings.units=$('#set-units').value; S.settings.tol=parseFloat($('#set-tol').value);
+    S.settings.power=Math.max(5,Math.min(40,parseInt($('#set-power').value)||15));
+    S.settings.theme=$('#set-theme').value;
+    applyTheme(); save(); closeModal('#modal-settings'); renderHome();
+  });
+  $('#btn-reset-learning').addEventListener('click',()=>{
+    S.profile.learned=defaultLearned(); save(); alert('Learned screw directions reset to defaults.');
+  });
+  $('#btn-wipe').addEventListener('click',()=>{
+    if(confirm('Erase ALL BeamTrue data on this device (profiles, sessions, licence)?')){
+      localStorage.removeItem(LS_KEY); location.reload();
+    }
+  });
+
+  // machine profile
+  $('#btn-edit-machine').addEventListener('click',()=>{
+    $('#mp-name').value=S.profile.name; $('#mp-bedx').value=S.profile.bedX;
+    $('#mp-bedy').value=S.profile.bedY; $('#mp-m2side').value=S.profile.m2side;
+    $('#mp-mount').value=S.profile.mount;
+    openModal('#modal-machine');
+  });
+  $('#btn-machine-save').addEventListener('click',()=>{
+    S.profile.name=$('#mp-name').value.trim()||'My laser';
+    S.profile.bedX=Math.max(100,parseInt($('#mp-bedx').value)||900);
+    S.profile.bedY=Math.max(100,parseInt($('#mp-bedy').value)||600);
+    S.profile.m2side=$('#mp-m2side').value; S.profile.mount=$('#mp-mount').value;
+    save(); closeModal('#modal-machine'); renderHome();
+  });
+
+  // license
+  $('#btn-license').addEventListener('click',()=>openModal('#modal-license'));
+  $('#btn-lic-close').addEventListener('click',()=>closeModal('#modal-license'));
+  $('#btn-lic-apply').addEventListener('click',()=>{
+    const k=$('#lic-key').value;
+    if(validKey(k)){
+      S.license={key:k.toUpperCase().trim(), tier:'pro'}; save();
+      $('#lic-msg').textContent='✅ Activated — lifetime licence. Thank you!';
+      setTimeout(()=>{ closeModal('#modal-license'); renderHome(); if($('#screen-wizard').classList.contains('active')) renderWizard(); },900);
+    }else{
+      $('#lic-msg').textContent='❌ That key doesn\'t check out — watch for O/0 and I/1 mix-ups (keys never contain letter O, I, L or U).';
+    }
+  });
+
+  // close modals on background tap
+  $$('.modal-bg').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+
+  // PWA service worker
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+}
+boot();
+</script>
+</body>
+</html>
