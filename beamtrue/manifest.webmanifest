@@ -1,0 +1,15 @@
+{
+  "name": "BeamTrue — Laser Mirror Alignment",
+  "short_name": "BeamTrue",
+  "description": "Guided CO2 laser mirror alignment. Tell it where the burn mark landed; it tells you exactly which screw to turn.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
